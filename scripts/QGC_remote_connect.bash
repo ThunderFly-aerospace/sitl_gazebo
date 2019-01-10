@@ -36,7 +36,7 @@ echo "opening connection from remote server."
 ssh -C -fR 14551:localhost:14551 $server_name sleep 10
 
 ## start translation of UDP packets to TCP packets on local machine side.
-echo "startig local connection to QGC."
+echo "starting local connection to QGC."
 netcat -lvp 14551 < /tmp/tcp2udp | netcat -uv localhost 14550 > /tmp/tcp2udp &
 
 # start translation of remote UDP packets to TCP packets transferred trought tunnel
