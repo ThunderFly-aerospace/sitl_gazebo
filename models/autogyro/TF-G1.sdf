@@ -424,41 +424,9 @@
       </axis>
     </joint>
 
-<!-- Mavlink interface doesn't work without these dummy elements -->
-    <joint name='pitch_dummyjoint' type='revolute'>
-      <child>pitch-dummylink</child>
-      <parent>roll-dummylink</parent>
-      <pose>0 0 0 0 0 0</pose>
-      <axis>
-        <xyz>0 1 0</xyz>
-        <use_parent_model_frame>1</use_parent_model_frame>
-      </axis>
-    </joint>
 
-    <link name='pitch-dummylink'>
-      <pose>0 0 0.47 0 0 0</pose>
-      <visual name="rotor_cyl_visual">
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.1</radius>
-            <length>.005</length>
-          </cylinder>
-        </geometry>
-      </visual>
-      <inertial>
-        <mass>0.001</mass>
-        <inertia>
-          <ixx>0.001</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.001</iyy>
-          <iyz>0</iyz>
-          <izz>0.001</izz>
-        </inertia>
-      </inertial>
+<!-- manuální ovládání placičky-->
 
-    </link>
 
     <joint name='roll_dummyjoint' type='revolute'>
       <child>roll-dummylink</child>
@@ -471,117 +439,76 @@
     </joint>
 
     <link name='roll-dummylink'>
-      <pose>0 0 0.47 0 0 0</pose>
-      <inertial>
+      <pose>0 0 0.40 0 0 0</pose>
+	  <inertial>
+        <pose>0 0 0 0 0 0</pose>
         <mass>0.001</mass>
         <inertia>
-          <ixx>0.001</ixx>
+          <ixx>1e-05</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.001</iyy>
+          <iyy>1e-05</iyy>
           <iyz>0</iyz>
-          <izz>0.001</izz>
+          <izz>1e-05</izz>
         </inertia>
       </inertial>
     </link>
 
 
-<!-- Old multi-joint rotor
-    <joint name='rotor_pitch_joint' type='revolute'>
-      <parent>rotor_roll_connector</parent>
-      <child>rotor_pitch_connector</child>
-      <pose>0 0 0 0.00 0 0.0</pose>
+    <joint name='pitch_dummyjoint' type='revolute'>
+      <child>rotorwing</child>
+      <parent>roll-dummylink</parent>
+      <pose>0 0 0 0 0 0</pose>
       <axis>
         <xyz>0 1 0</xyz>
-        <limit>
-          <lower>-0.2</lower>
-          <upper>0.2</upper>
-        </limit>
-         <use_parent_model_frame>1</use_parent_model_frame>
+        <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
 
-    <joint name='rotor_roll_joint' type='revolute'>
-      <parent>base_link</parent>
-      <child>rotor_roll_connector</child>
-      <pose>0 0 0 0.00 0 0.0</pose>
-      <axis>
-        <xyz>1 0 0</xyz>
-        <limit>
-          <lower>-0.087</lower>
-          <upper>0.087</upper>
-        </limit>
-         <dynamics>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-          <damping>0.5</damping>
-          <friction>0.5</friction>
-        </dynamics>
-      </axis>
-    </joint>
--->
+    <link name='rotorwing'>
+      <pose>0 0 0.40 0 0 0</pose>
+	  <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1e-05</izz>
+        </inertia>
+      </inertial>
+      <visual name='visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.75</radius>
+            <length>0.02</length>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
 
-<!--
-    <plugin name="left_wing" filename="libLiftDragPlugin.so">
-      <a0>0.05984281113</a0>
-      <cla>4.752798721</cla>
-      <cda>0.6417112299</cda>
-      <cma>-1.8</cma>
-      <alpha_stall>0.3391428111</alpha_stall>
-      <cla_stall>-3.85</cla_stall>
-      <cda_stall>-0.9233984055</cda_stall>
-      <cma_stall>0</cma_stall>
-      <cp>-0.05 0.3 0.05</cp>
-      <area>0.12</area>
-      <air_density>1.2041</air_density>
-      <forward>1 0 0</forward>
-      <upward>0 0 1</upward>
-      <link_name>base_link</link_name>
-      <control_joint_name>
-        left_elevon_joint
-      </control_joint_name>
-      <control_joint_rad_to_cl>-0.5</control_joint_rad_to_cl>
-    </plugin>
-    <plugin name="right_wing" filename="libLiftDragPlugin.so">
-      <a0>0.05984281113</a0>
-      <cla>4.752798721</cla>
-      <cda>0.6417112299</cda>
-      <cma>-1.8</cma>
-      <alpha_stall>0.3391428111</alpha_stall>
-      <cla_stall>-3.85</cla_stall>
-      <cda_stall>-0.9233984055</cda_stall>
-      <cma_stall>0</cma_stall>
-      <cp>-0.05 -0.3 0.05</cp>
-      <area>0.12</area>
-      <air_density>1.2041</air_density>
-      <forward>1 0 0</forward>
-      <upward>0 0 1</upward>
-      <link_name>base_link</link_name>
-      <control_joint_name>
-        right_elevon_joint
-      </control_joint_name>
-      <control_joint_rad_to_cl>-0.5</control_joint_rad_to_cl>
-    </plugin>
-  -->
-  <!--
-    <plugin name="rudder" filename="libLiftDragPlugin.so">
+    <plugin name="rotorwingplugin" filename="libLiftDragPlugin.so">
       <a0>0.0</a0>
       <cla>4.752798721</cla>
       <cda>0.6417112299</cda>
-      <cma>-1.8</cma>
+      <cma>0</cma>
       <alpha_stall>0.3391428111</alpha_stall>
       <cla_stall>-3.85</cla_stall>
       <cda_stall>-0.9233984055</cda_stall>
       <cma_stall>0</cma_stall>
-      <cp>-0.5 0 0.05</cp>
-      <area>0.02</area>
+      <cp>0 0 0</cp>
+      <area>3.14</area>
       <air_density>1.2041</air_density>
       <forward>1 0 0</forward>
-      <upward>0 1 0</upward>
-      <link_name>base_link</link_name>
+      <upward>0 0 1</upward>
+      <link_name>rotorwing</link_name>
     </plugin>
-  -->
-    <plugin name='propeller_motor' filename='libgazebo_motor_model.so'>
+
+
+    <!--<plugin name='propeller_motor' filename='libgazebo_motor_model.so'>
       <robotNamespace></robotNamespace>
       <jointName>propeller_joint</jointName>
       <linkName>propeller</linkName>
@@ -596,7 +523,24 @@
       <rotorDragCoefficient>8.06428e-01</rotorDragCoefficient>
       <rollingMomentCoefficient>1e-08</rollingMomentCoefficient>
       <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
-      <rotorVelocitySlowdownSim>20</rotorVelocitySlowdownSim>
+      <rotorVelocitySlowdownSim>40</rotorVelocitySlowdownSim>
+    </plugin>-->
+    <plugin name='propeller_motor' filename='libgazebo_motor_model.so'>
+      <robotNamespace></robotNamespace>
+      <jointName>propeller_joint</jointName>
+      <linkName>propeller</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>3500</maxRotVelocity>
+      <motorConstant>8.54858e-05</motorConstant>
+      <momentConstant>0.01</momentConstant>
+      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
+      <motorNumber>4</motorNumber>
+      <rotorDragCoefficient>8.06428e-04</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+      <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
     </plugin>
 
     <plugin name='gazebo_imu_plugin' filename='libgazebo_imu_plugin.so'>
@@ -616,91 +560,6 @@
         <robotNamespace></robotNamespace>
         <gpsNoise>true</gpsNoise>
     </plugin>
-
-    <link name='shaft_template'>
-      <pose>0 0 0 0 0 0</pose>
-      <visual name='visual'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.01</radius>
-            <length>0.02</length>
-          </cylinder>
-        </geometry>
-      </visual>
-    </link>
-
-   <link name='blade_link_template'>
-       <pose>0 0 0 0 0 0</pose>
-       <visual name='visual'>
-        <pose>0.5 0 0 0 0 0</pose>
-        <geometry>
-          <box>
-            <size>1 0.05 0.01</size>
-          </box>
-        </geometry>
-         <material>
-          <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Red</name>
-          </script>
-        </material>
-      </visual>
-      <inertial>
-        <pose>0.647 0 0 0 0 0</pose>
-        <mass>0.488</mass>
-        <inertia>
-          <ixx>0.01</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.27196</iyy>
-          <iyz>0</iyz>
-          <izz>0.27196</izz>
-        </inertia>
-      </inertial>
-    </link>
-
-   <joint name="flap_joint_template" type="revolute">
-      <pose>0 0 0 0 0 0 </pose>
-      <child>blade_link_template</child>
-      <parent>world</parent> 
-      <axis> 
-        <use_parent_model_frame>1</use_parent_model_frame>
-        <dynamics>
-          <friction>0.01</friction>
-          <damping>0.5</damping>
-          <spring_stiffness>100</spring_stiffness>
-          <spring_reference>0.05</spring_reference>
-        </dynamics>
-      </axis>
-    </joint>
-
-    <plugin name="rotor_model" filename="libgazebo_rotor_model.so">
-        <pose> 0 0 0.42 0 0 0</pose>
-        <radius>0.970</radius>
-
-        <parent_link>base_link</parent_link>
-        <shaft_link>shaft_template</shaft_link>
-        <blade_link>blade_link_template</blade_link>
-        <flap_joint>flap_joint_template</flap_joint>
-
-        <blade_count>2</blade_count>
-        <blade_rel_start>0</blade_rel_start>
-        <blade_flap_angle_max>0.1</blade_flap_angle_max>
-        <blade_flap_angle_min>0</blade_flap_angle_min>
-
-        <profile_pitch>1.5</profile_pitch>
-        <profile_chord>0.05</profile_chord>
-
-        <rotor_pitch_max>0.9</rotor_pitch_max>
-        <rotor_pitch_min>-0.9</rotor_pitch_min>
-        <rotor_roll_max>0.9</rotor_roll_max>
-        <rotor_roll_min>-0.9</rotor_roll_min>
-
-        <test_case></test_case>
-        <test_delay>10</test_delay>
-    </plugin>
-
 
     <plugin name='mavlink_interface' filename='libgazebo_mavlink_interface.so'>
       <robotNamespace></robotNamespace>
@@ -733,28 +592,18 @@
             <cmdMin>-3000</cmdMin>
           </joint_control_pid>
         </channel>
-<!--
 
-        <channel name="test_lift_channel">
-          <input_index>4</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>100</input_scaling>
-          <gztopic>/rotor_lift_cmd</gztopic>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position_gztopic</joint_control_type>
-          <joint_name>rotor_joint</joint_name>
-        </channel>
-      -->
 
-        <channel name="roll_channel">
+<!-- manuální ovládání placičky-->
+
+       <channel name="roll_channel">
           <input_index>2</input_index>
           <input_offset>0</input_offset>
           <input_scaling>1</input_scaling>
           <gztopic>/rotor_roll_cmd</gztopic>
           <zero_position_disarmed>0</zero_position_disarmed>
           <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position_gztopic</joint_control_type>
+          <joint_control_type>position_kinematic</joint_control_type>
           <joint_name>roll_dummyjoint</joint_name>
         </channel>
 
@@ -765,46 +614,11 @@
           <gztopic>/rotor_pitch_cmd</gztopic>
           <zero_position_disarmed>0</zero_position_disarmed>
           <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position_gztopic</joint_control_type>
+          <joint_control_type>position_kinematic</joint_control_type>
           <joint_name>pitch_dummyjoint</joint_name>
         </channel>
 
-
-<!-- Testing other channnels
-        <channel name="test5">
-          <input_index>5</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1</input_scaling>
-          <gztopic>/rotor_5_cmd</gztopic>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position_gztopic</joint_control_type>
-          <joint_name>rotor_joint</joint_name>
-        </channel>
-
-        <channel name="test6">
-          <input_index>6</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1</input_scaling>
-          <gztopic>/rotor_6_cmd</gztopic>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position_gztopic</joint_control_type>
-          <joint_name>rotor_joint</joint_name>
-        </channel>
-
-        <channel name="test7">
-          <input_index>7</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1</input_scaling>
-          <gztopic>/rotor_7_cmd</gztopic>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position_gztopic</joint_control_type>
-          <joint_name>rotor_joint</joint_name>
-        </channel>
--->
-
+<!-- ocas-->
 
         <channel name="left_rudder_channel">
           <input_index>0</input_index>
@@ -815,6 +629,7 @@
           <joint_control_type>position_kinematic</joint_control_type>
           <joint_name>left_rudder_joint</joint_name>
         </channel>
+
         <channel name="right_rudder_channel">
           <input_index>1</input_index>
           <input_offset>0</input_offset>
