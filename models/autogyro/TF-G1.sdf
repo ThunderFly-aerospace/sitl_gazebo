@@ -538,13 +538,13 @@
       <turningDirection>cw</turningDirection>
       <timeConstantUp>0.0125</timeConstantUp>
       <timeConstantDown>0.025</timeConstantDown>
-      <maxRotVelocity>3500</maxRotVelocity>
+      <maxRotVelocity>9500</maxRotVelocity>
       <motorConstant>6.54858e-06</motorConstant>
-      <momentConstant>3.5e-90</momentConstant>
+      <momentConstant>0.01</momentConstant>
       <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
       <motorNumber>4</motorNumber>
       <rotorDragCoefficient>8.06428e-04</rotorDragCoefficient>
-      <rollingMomentCoefficient>1e-70</rollingMomentCoefficient>
+      <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
       <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
     </plugin>
@@ -591,12 +591,6 @@
           <zero_position_armed>0</zero_position_armed>
           <joint_control_type>velocity</joint_control_type>
           <joint_name>propeller_joint</joint_name>
-          <joint_control_pid>
-            <p>0.0005</p>
-            <i>0.00001</i>
-            <cmdMax>3000</cmdMax>
-            <cmdMin>-3000</cmdMin>
-          </joint_control_pid>
         </channel>
 
 
