@@ -158,7 +158,7 @@
       <pose> -0.22 0.30 -0.095 1.5707 1.5707</pose> 
        <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.01</mass>
+        <mass>0.12</mass>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -217,6 +217,18 @@
 
     <link name="right_rear_wheel">
       <pose> -0.22 -0.30 -0.095 1.5707 1.5707</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.01</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
       <collision name="collision">
         <geometry>
             <cylinder>
@@ -252,18 +264,6 @@
             </cylinder>
           </geometry>
       </visual>
-      <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.01</mass>
-        <inertia>
-          <ixx>0.01</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.01</iyy>
-          <iyz>0</iyz>
-          <izz>0.01</izz>
-        </inertia>
-      </inertial>
     </link>
 
     <joint name="right_rear_wheel_joint" type="revolute">
@@ -404,7 +404,7 @@
       <child>propeller</child>
       <parent>base_link</parent>
       <axis>
-        <xyz>1 0 0</xyz>
+        <xyz>0.961 0 -0.275</xyz>
         <limit>
           <lower>-1e+16</lower>
           <upper>1e+16</upper>
@@ -490,7 +490,7 @@
     </link>
 
     <plugin name="rotorwingplugin" filename="libLiftDragPlugin.so">
-      <a0>0.34906585</a0>
+      <a0>0.349</a0>
       <cla>1.15</cla>
       <cda>0.955</cda>
       <cma>0</cma>
@@ -532,14 +532,14 @@
       <timeConstantUp>0.0125</timeConstantUp>
       <timeConstantDown>0.025</timeConstantDown>
       <maxRotVelocity>9500</maxRotVelocity>
-      <motorConstant>6.54858e-06</motorConstant>
+      <motorConstant>1.54858e-05</motorConstant>
       <momentConstant>0.001</momentConstant>
       <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
       <motorNumber>4</motorNumber>
       <rotorDragCoefficient>8.06428e-04</rotorDragCoefficient>
       <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
       <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
-      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <rotorVelocitySlowdownSim>50</rotorVelocitySlowdownSim>
     </plugin>
 
     <plugin name='gazebo_imu_plugin' filename='libgazebo_imu_plugin.so'>
