@@ -219,7 +219,7 @@
       <pose> -0.22 -0.30 -0.095 1.5707 1.5707</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.01</mass>
+        <mass>0.12</mass>
         <inertia>
           <ixx>0.01</ixx>
           <ixy>0</ixy>
@@ -312,7 +312,7 @@
     <link name="left_rudder">
       <pose>-0.744 0.15 0.07 0 0 0 </pose>
       <inertial>
-        <mass>0.016</mass>
+        <mass>0.06</mass>
         <inertia>
           <ixx>0.0001</ixx>
           <ixy>0.0</ixy>
@@ -340,7 +340,7 @@
     <link name="right_rudder">
       <pose>-0.744 -0.15 0.07 0 0 0 </pose>
       <inertial>
-        <mass>0.016</mass>
+        <mass>0.06</mass>
         <inertia>
           <ixx>0.0001</ixx>
           <ixy>0.0</ixy>
@@ -404,7 +404,7 @@
       <child>propeller</child>
       <parent>base_link</parent>
       <axis>
-        <xyz>0.961 0 -0.275</xyz>
+        <xyz>0.981 0 -0.190</xyz>
         <limit>
           <lower>-1e+16</lower>
           <upper>1e+16</upper>
@@ -532,7 +532,7 @@
       <timeConstantUp>0.0125</timeConstantUp>
       <timeConstantDown>0.025</timeConstantDown>
       <maxRotVelocity>9500</maxRotVelocity>
-      <motorConstant>1.54858e-05</motorConstant>
+      <motorConstant>5.54858e-05</motorConstant>
       <momentConstant>0.001</momentConstant>
       <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
       <motorNumber>4</motorNumber>
