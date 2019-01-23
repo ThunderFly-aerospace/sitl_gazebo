@@ -50,14 +50,14 @@
         </material>
       </visual>
       <self_collide>0</self_collide>
--      <visual name='center_visual'>
--        <pose>0 0 0 0 0 0</pose>
--        <geometry>
--          <sphere>
--            <radius>0.02</radius>
--          </sphere>
--        </geometry>
--      </visual>
+       <visual name='center_visual'>
+         <pose>0 0 0 0 0 0</pose>
+         <geometry>
+           <sphere>
+             <radius>0.02</radius>
+           </sphere>
+         </geometry>
+       </visual>
     </link>
     <link name='imu_link'>
       <pose>0 0 0 0 0 0</pose>
@@ -118,8 +118,8 @@
         <surface>
           <friction>
             <ode>
-              <mu>0.01</mu>
-              <mu2>0.01</mu2>
+              <mu>300</mu>
+              <mu2>300</mu2>
               <fdir1>0 0 1</fdir1>
               <slip1>0.0</slip1>
               <slip2>0.0</slip2>
@@ -127,8 +127,9 @@
           </friction>
           <contact>
             <ode>
-              <min_depth>0.0005</min_depth>
-              <kp>1e6</kp>
+              <min_depth>0.005</min_depth>
+              <kp>1e5</kp>
+              <kd>10</kd>
             </ode>
           </contact>
         </surface>
@@ -150,10 +151,6 @@
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>1</use_parent_model_frame>
-       <!-- <dynamics>
-          <friction>0.01</friction>
-          <damping>0</damping>
-        </dynamics>-->
       </axis>
     </joint>
 
@@ -182,8 +179,8 @@
         <surface>
           <friction>
             <ode>
-              <mu>0.01</mu>
-              <mu2>0.01</mu2>
+              <mu>300</mu>
+              <mu2>300</mu2>
               <fdir1>0 0 1</fdir1>
               <slip1>0.0</slip1>
               <slip2>0.0</slip2>
@@ -191,8 +188,9 @@
           </friction>
           <contact>
             <ode>
-              <min_depth>0.0005</min_depth>
-              <kp>1e6</kp>
+              <min_depth>0.005</min_depth>
+              <kp>1e5</kp>
+              <kd>10</kd>
             </ode>
           </contact>
         </surface>
@@ -214,10 +212,6 @@
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>1</use_parent_model_frame>
-        <!--<dynamics>
-          <friction>0.001</friction>
-          <damping>0</damping>
-        </dynamics>-->
       </axis>
     </joint>
 
@@ -234,8 +228,8 @@
         <surface>
           <friction>
             <ode>
-              <mu>0.01</mu>
-              <mu2>0.01</mu2>
+              <mu>300</mu>
+              <mu2>300</mu2>
               <fdir1>0 0 1</fdir1>
               <slip1>0.0</slip1>
               <slip2>0.0</slip2>
@@ -243,8 +237,9 @@
           </friction>
           <contact>
             <ode>
-              <min_depth>0.0005</min_depth>
-              <kp>1e6</kp>
+              <min_depth>0.005</min_depth>
+              <kp>1e5</kp>
+              <kd>10</kd>
             </ode>
           </contact>
         </surface>
@@ -270,6 +265,7 @@
         </inertia>
       </inertial>
     </link>
+
     <joint name="right_rear_wheel_joint" type="revolute">
       <pose>0 0 0 0 0 0 </pose>
       <child>right_rear_wheel</child>
@@ -277,12 +273,9 @@
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>1</use_parent_model_frame>
-       <!-- <dynamics>
-          <friction>0.01</friction>
-          <damping>0</damping>
-        </dynamics>-->
       </axis>
     </joint>
+
     <link name='propeller'>
       <pose>0.23 0 0.065 0 1.57 0</pose>
       <inertial>
@@ -501,7 +494,7 @@
       <cla>1.15</cla>
       <cda>0.955</cda>
       <cma>0</cma>
-      <alpha_stall>0.872664626</alpha_stall>
+      <alpha_stall>0.872</alpha_stall>
       <cla_stall>-0.716</cla_stall>
       <cda_stall>0.9</cda_stall>
       <cma_stall>0</cma_stall>
@@ -540,7 +533,7 @@
       <timeConstantDown>0.025</timeConstantDown>
       <maxRotVelocity>9500</maxRotVelocity>
       <motorConstant>6.54858e-06</motorConstant>
-      <momentConstant>0.01</momentConstant>
+      <momentConstant>0.001</momentConstant>
       <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
       <motorNumber>4</motorNumber>
       <rotorDragCoefficient>8.06428e-04</rotorDragCoefficient>
@@ -583,20 +576,19 @@
       <motorSpeedCommandPubTopic>/gazebo/command/motor_speed</motorSpeedCommandPubTopic>
       <control_channels>
 
-        <channel name="propeller">
-          <input_index>4</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>3500</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>propeller_joint</joint_name>
-        </channel>
+    <channel name="propeller">
+      <input_index>4</input_index>
+      <input_offset>0</input_offset>
+      <input_scaling>3500</input_scaling>
+      <zero_position_disarmed>0</zero_position_disarmed>
+      <zero_position_armed>0</zero_position_armed>
+      <joint_control_type>velocity</joint_control_type>
+      <joint_name>propeller_joint</joint_name>
+    </channel>
 
+    <!-- manuální ovládání placičky-->
 
-<!-- manuální ovládání placičky-->
-
-       <channel name="roll_channel">
+        <channel name="roll_channel">
           <input_index>2</input_index>
           <input_offset>0</input_offset>
           <input_scaling>0.09</input_scaling>
@@ -618,7 +610,7 @@
           <joint_name>pitch_dummyjoint</joint_name>
         </channel>
 
-<!-- ocas-->
+        <!-- ocas-->
 
         <channel name="left_rudder_channel">
           <input_index>0</input_index>
