@@ -65,12 +65,12 @@
         <pose>0 0 0 0 0 0</pose>
         <mass>0.1</mass>
         <inertia>
-          <ixx>0.001</ixx>
+          <ixx>0.0001</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.001</iyy>
+          <iyy>0.0001</iyy>
           <iyz>0</iyz>
-          <izz>0.001</izz>
+          <izz>0.0001</izz>
         </inertia>
       </inertial>
     </link>
@@ -93,19 +93,19 @@
       </axis>
     </joint>
 
-      <link name="center_front_wheel">
+   <link name="center_front_wheel">
       <pose> 0.14 0.0 -0.095 1.5707 1.5707</pose> 
-       <inertial>
+      <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.12</mass>
-        <!--<inertia>
-          <ixx>0.01</ixx>
+        <inertia>
+          <ixx>0.0001</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.01</iyy>
+          <iyy>0.0001</iyy>
           <iyz>0</iyz>
-          <izz>0.01</izz>
-        </inertia>-->
+          <izz>0.0001</izz>
+        </inertia>
       </inertial>
       <collision name="collision">
         <geometry>
@@ -113,28 +113,25 @@
               <radius>.05</radius>
               <length>.025</length>
             </cylinder>
-          </geometry>
+        </geometry>
         <max_contacts>1</max_contacts>
         <surface>
           <friction>
             <ode>
-              <mu>300</mu>
-              <mu2>300</mu2>
-              <fdir1>0 0 1</fdir1>
-              <slip1>0.0</slip1>
-              <slip2>0.0</slip2>
+              <mu>10</mu>
+              <mu2>10</mu2>
             </ode>
           </friction>
           <contact>
             <ode>
               <min_depth>0.005</min_depth>
-              <kp>1e5</kp>
-              <kd>10</kd>
+              <kp>1e6</kp>
+              <!--<kd>10</kd>-->
             </ode>
           </contact>
         </surface>
       </collision>
-      <visual name="center_front_wheel_visual">
+      <visual name="right_rear_wheel_visual">
         <geometry>
             <cylinder>
               <radius>.05</radius>
@@ -152,21 +149,30 @@
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+          <limit>
+            <cfm>0.000000</cfm>
+            <erp>0.900000</erp>
+          </limit>
+        </ode>
+      </physics>
     </joint>
 
-      <link name="left_rear_wheel">
+   <link name="left_rear_wheel">
       <pose> -0.22 0.30 -0.095 1.5707 1.5707</pose> 
-       <inertial>
+      <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.12</mass>
-        <!--<inertia>
-          <ixx>0.01</ixx>
+        <inertia>
+          <ixx>0.0001</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.01</iyy>
+          <iyy>0.0001</iyy>
           <iyz>0</iyz>
-          <izz>0.01</izz>
-        </inertia>-->
+          <izz>0.0001</izz>
+        </inertia>
       </inertial>
       <collision name="collision">
         <geometry>
@@ -174,28 +180,25 @@
               <radius>.05</radius>
               <length>.025</length>
             </cylinder>
-          </geometry>
+        </geometry>
         <max_contacts>1</max_contacts>
         <surface>
           <friction>
             <ode>
-              <mu>300</mu>
-              <mu2>300</mu2>
-              <fdir1>0 0 1</fdir1>
-              <slip1>0.0</slip1>
-              <slip2>0.0</slip2>
+              <mu>10</mu>
+              <mu2>10</mu2>
             </ode>
           </friction>
           <contact>
             <ode>
               <min_depth>0.005</min_depth>
-              <kp>1e5</kp>
-              <kd>10</kd>
+              <kp>1e6</kp>
+              <!--<kd>10</kd>-->
             </ode>
           </contact>
         </surface>
       </collision>
-      <visual name="left_rear_wheel_visual">
+      <visual name="right_rear_wheel_visual">
         <geometry>
             <cylinder>
               <radius>.05</radius>
@@ -213,6 +216,15 @@
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+          <limit>
+            <cfm>0.000000</cfm>
+            <erp>0.800000</erp>
+          </limit>
+        </ode>
+      </physics>
     </joint>
 
     <link name="right_rear_wheel">
@@ -220,14 +232,14 @@
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.12</mass>
-        <!--<inertia>
-          <ixx>0.01</ixx>
+        <inertia>
+          <ixx>0.0001</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.01</iyy>
+          <iyy>0.0001</iyy>
           <iyz>0</iyz>
-          <izz>0.01</izz>
-        </inertia>-->
+          <izz>0.0001</izz>
+        </inertia>
       </inertial>
       <collision name="collision">
         <geometry>
@@ -240,18 +252,15 @@
         <surface>
           <friction>
             <ode>
-              <mu>300</mu>
-              <mu2>300</mu2>
-              <fdir1>0 0 1</fdir1>
-              <slip1>0.0</slip1>
-              <slip2>0.0</slip2>
+              <mu>10</mu>
+              <mu2>10</mu2>
             </ode>
           </friction>
           <contact>
             <ode>
               <min_depth>0.005</min_depth>
-              <kp>1e5</kp>
-              <kd>10</kd>
+              <kp>1e6</kp>
+              <!--<kd>10</kd>-->
             </ode>
           </contact>
         </surface>
@@ -274,40 +283,16 @@
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
+      <physics>
+        <ode>
+          <cfm_damping>1</cfm_damping>
+          <limit>
+            <cfm>0.000000</cfm>
+            <erp>0.800000</erp>
+          </limit>
+        </ode>
+      </physics>
     </joint>
-
-    <link name='propeller'>
-      <pose>0.23 0 0.065 0 1.57 0</pose>
-      <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.2</mass>
-        <inertia>
-          <ixx>9.75e-07</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.000166704</iyy>
-          <iyz>0</iyz>
-          <izz>0.000167604</izz>
-        </inertia>
-      </inertial>
-      <visual name='propeller_visual'>
-        <geometry>
-          <mesh>
-            <scale>1 1 1 </scale>
-            <uri>model://autogyro/meshes/iris_prop_ccw.dae</uri>
-          </mesh>
-        </geometry>
-        <material>
-          <script>
-            <name>Gazebo/Red</name>
-            <uri>__default__</uri>
-          </script>
-        </material>
-      </visual>
-      <gravity>1</gravity>
-      <velocity_decay/>
-      <self_collide>0</self_collide>
-    </link>
 
     <link name="left_rudder">
       <pose>-0.744 0.15 0.07 0 0 0 </pose>
@@ -405,6 +390,7 @@
       <parent>base_link</parent>
       <axis>
         <xyz>0.981 0 -0.190</xyz>
+        <!--<xyz>1 0 0</xyz>-->
         <limit>
           <lower>-1e+16</lower>
           <upper>1e+16</upper>
@@ -417,6 +403,38 @@
       </axis>
     </joint>
 
+    <link name='propeller'>
+      <pose>0.23 0 0.065 0 1.762 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>9.75e-07</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000166704</iyy>
+          <iyz>0</iyz>
+          <izz>0.000167604</izz>
+        </inertia>
+      </inertial>
+      <visual name='propeller_visual'>
+        <geometry>
+          <mesh>
+            <scale>1 1 1 </scale>
+            <uri>model://autogyro/meshes/iris_prop_ccw.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Red</name>
+            <uri>__default__</uri>
+          </script>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
 
 <!-- manuální ovládání placičky-->
 
@@ -435,14 +453,14 @@
       <pose>0 0 0.40 0 0 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.001</mass>
+        <mass>0.1</mass>
         <inertia>
-          <ixx>1e-05</ixx>
+          <ixx>1e-04</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>1e-05</iyy>
+          <iyy>1e-04</iyy>
           <iyz>0</iyz>
-          <izz>1e-05</izz>
+          <izz>1e-04</izz>
         </inertia>
       </inertial>
     </link>
@@ -454,11 +472,9 @@
       <pose>0 0 0 0 0 0</pose>
       <axis>
         <xyz>0 1 0</xyz>
-        <limit>
-          <!-- 0/+20 deg. -->
+        <limit>          
           <lower>-0.349</lower>
           <upper>0</upper>
-          <!-- <initial_position>-0.157</initial_position>-->
         </limit>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
@@ -469,14 +485,14 @@
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.1</mass>
-        <!--<inertia>
-          <ixx>1e-05</ixx>
+        <inertia>
+          <ixx>1e-04</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>1e-05</iyy>
+          <iyy>1e-04</iyy>
           <iyz>0</iyz>
-          <izz>1e-05</izz>
-        </inertia>-->
+          <izz>1e-04</izz>
+        </inertia>
       </inertial>
       <visual name='visual'>
         <pose>0 0 0 0 0 0</pose>
@@ -489,7 +505,7 @@
       </visual>
     </link>
 
-    <plugin name="rotorwingplugin" filename="libLiftDragPlugin.so">
+   <plugin name="rotorwingplugin" filename="libLiftDragPlugin.so">
       <a0>0.349</a0>
       <cla>1.15</cla>
       <cda>0.955</cda>
@@ -532,11 +548,11 @@
       <timeConstantUp>0.0125</timeConstantUp>
       <timeConstantDown>0.025</timeConstantDown>
       <maxRotVelocity>9500</maxRotVelocity>
-      <motorConstant>8.54858e-06</motorConstant>
+      <motorConstant>8.54858e-05</motorConstant>
       <momentConstant>0.001</momentConstant>
       <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
       <motorNumber>4</motorNumber>
-      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rotorDragCoefficient>8.06428e-02</rotorDragCoefficient>
       <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
       <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
       <rotorVelocitySlowdownSim>50</rotorVelocitySlowdownSim>
@@ -588,7 +604,7 @@
 
     <!-- manuální ovládání placičky-->
 
-        <channel name="roll_channel">
+       <channel name="roll_channel">
           <input_index>2</input_index>
           <input_offset>0</input_offset>
           <input_scaling>0.09</input_scaling>
