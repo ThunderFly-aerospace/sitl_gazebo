@@ -93,6 +93,7 @@
       </axis>
     </joint>
 
+<!-- ====================================================WHEELS================================================================-->
    <link name="center_front_wheel">
       <pose> 0.14 0.0 -0.095 1.5707 1.5707</pose> 
       <inertial>
@@ -154,7 +155,7 @@
           <cfm_damping>1</cfm_damping>
           <limit>
             <cfm>0.000000</cfm>
-            <erp>0.900000</erp>
+            <erp>0.800000</erp>
           </limit>
         </ode>
       </physics>
@@ -294,6 +295,9 @@
       </physics>
     </joint>
 
+<!--=================================================== OCAS ===================================================================-->
+
+
     <link name="left_rudder">
       <pose>-0.744 0.15 0.07 0 0 0 </pose>
       <inertial>
@@ -385,16 +389,75 @@
       </physics>
     </joint>
 
+    <plugin name="elevator" filename="libLiftDragPlugin.so">
+      <a0>-0.2</a0>
+      <cla>4.752798721</cla>
+      <cda>0.6417112299</cda>
+      <cma>-1.8</cma>
+      <alpha_stall>0.3391428111</alpha_stall>
+      <cla_stall>-3.85</cla_stall>
+      <cda_stall>-0.9233984055</cda_stall>
+      <cma_stall>0</cma_stall>
+      <cp>-0.8 0 0</cp>
+      <area>0.02</area>
+      <air_density>1.2041</air_density>
+      <forward>1 0 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>base_link</link_name>
+    </plugin>
+    <plugin name="leftrudder" filename="libLiftDragPlugin.so">
+      <a0>0.0</a0>
+      <cla>4.752798721</cla>
+      <cda>0.6417112299</cda>
+      <cma>-1.8</cma>
+      <alpha_stall>0.3391428111</alpha_stall>
+      <cla_stall>-3.85</cla_stall>
+      <cda_stall>-0.9233984055</cda_stall>
+      <cma_stall>0</cma_stall>
+      <cp>-0.8 -0.15 0.00</cp>
+      <area>0.01</area>
+      <air_density>1.2041</air_density>
+      <forward>1 0 0</forward>
+      <upward>0 1 0</upward>
+      <link_name>base_link</link_name>
+      <control_joint_name>
+        left_rudder_joint
+      </control_joint_name>
+      <control_joint_rad_to_cl>-4.0</control_joint_rad_to_cl>
+    </plugin>
+    <plugin name="rightrudder" filename="libLiftDragPlugin.so">
+      <a0>0.0</a0>
+      <cla>4.752798721</cla>
+      <cda>0.6417112299</cda>
+      <cma>-1.8</cma>
+      <alpha_stall>0.3391428111</alpha_stall>
+      <cla_stall>-3.85</cla_stall>
+      <cda_stall>-0.9233984055</cda_stall>
+      <cma_stall>0</cma_stall>
+      <cp>-0.8 -0.15 0.00</cp>
+      <area>0.01</area>
+      <air_density>1.2041</air_density>
+      <forward>1 0 0</forward>
+      <upward>0 -1 0</upward>
+      <link_name>base_link</link_name>
+      <control_joint_name>
+        right_rudder_joint
+      </control_joint_name>
+      <control_joint_rad_to_cl>4.0</control_joint_rad_to_cl>
+    </plugin>
+
+
+<!--============================================================== VRTULE =======================================================-->
     <joint name='propeller_joint' type='revolute'>
       <child>propeller</child>
       <parent>base_link</parent>
       <axis>
         <xyz>0.981 0 -0.190</xyz>
         <!--<xyz>1 0 0</xyz>-->
-        <limit>
+        <!--<limit>
           <lower>-1e+16</lower>
           <upper>1e+16</upper>
-        </limit>
+        </limit>-->
         <dynamics>
           <spring_reference>0</spring_reference>
           <spring_stiffness>0</spring_stiffness>
@@ -436,90 +499,13 @@
       <self_collide>0</self_collide>
     </link>
 
-<!-- manuální ovládání placičky-->
-
-
-    <joint name='roll_dummyjoint' type='revolute'>
-      <child>roll-dummylink</child>
-      <parent>base_link</parent>
-      <pose>0 0 0 0 0 0</pose>
-      <axis>
-        <xyz>1 0 0</xyz>
-        <use_parent_model_frame>1</use_parent_model_frame>
-      </axis>
-    </joint>
-
-    <link name='roll-dummylink'>
-      <pose>0 0 0.40 0 0 0</pose>
-	  <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.1</mass>
-        <inertia>
-          <ixx>1e-04</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-04</iyy>
-          <iyz>0</iyz>
-          <izz>1e-04</izz>
-        </inertia>
-      </inertial>
-    </link>
-
-
-    <joint name='pitch_dummyjoint' type='revolute'>
-      <child>rotorwing</child>
-      <parent>roll-dummylink</parent>
-      <pose>0 0 0 0 0 0</pose>
-      <axis>
-        <xyz>0 1 0</xyz>
-        <limit>          
-          <lower>-0.349</lower>
-          <upper>0</upper>
-        </limit>
-        <use_parent_model_frame>1</use_parent_model_frame>
-      </axis>
-    </joint>
-
-    <link name='rotorwing'>
-      <pose>0 0 0.40 0 0 0</pose>
-	  <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.1</mass>
-        <inertia>
-          <ixx>1e-04</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-04</iyy>
-          <iyz>0</iyz>
-          <izz>1e-04</izz>
-        </inertia>
-      </inertial>
-      <visual name='visual'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.75</radius>
-            <length>0.02</length>
-          </cylinder>
-        </geometry>
-      </visual>
-    </link>
-
-   <plugin name="rotorwingplugin" filename="libLiftDragPlugin.so">
-      <a0>0.349</a0>
-      <cla>1.15</cla>
-      <cda>0.955</cda>
-      <cma>0</cma>
-      <alpha_stall>0.872</alpha_stall>
-      <cla_stall>-0.716</cla_stall>
-      <cda_stall>0.9</cda_stall>
-      <cma_stall>0</cma_stall>
-      <cp>0 0 0</cp>
-      <area>3.14</area>
-      <air_density>1.2041</air_density>
-      <forward>1 0 0</forward>
-      <upward>0 0 1</upward>
-      <link_name>rotorwing</link_name>
+    <plugin name="motor" filename="libgazebo_simple_motor.so">
+      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
+      <motorNumber>4</motorNumber>
+      <base_link>base_link</base_link>
+      <force_pos>0.23 0 0.065</force_pos>
+      <force_dir>1 0 0</force_dir>
+      <coef>0.1</coef>
     </plugin>
 
 
@@ -540,7 +526,7 @@
       <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
       <rotorVelocitySlowdownSim>40</rotorVelocitySlowdownSim>
     </plugin>-->
-    <plugin name='propeller_motor' filename='libgazebo_motor_model.so'>
+<!--    <plugin name='propeller_motor' filename='libgazebo_motor_model.so'>
       <robotNamespace></robotNamespace>
       <jointName>propeller_joint</jointName>
       <linkName>propeller</linkName>
@@ -556,7 +542,113 @@
       <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
       <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
       <rotorVelocitySlowdownSim>50</rotorVelocitySlowdownSim>
+    </plugin>-->
+
+<!--============================================================== ROTOR ================================================-->
+
+    <joint name='roll_dummyjoint' type='revolute'>
+      <child>roll-dummylink</child>
+      <parent>base_link</parent>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+            <cfm>0.000000</cfm>
+            <erp>0.900000</erp>
+        </ode>
+      </physics>
+    </joint>
+
+    <link name='roll-dummylink'>
+      <pose>0 0 0.40 0 0 0</pose>
+	  <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.0001</mass>
+        <inertia>
+          <ixx>1e-09</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-09</iyy>
+          <iyz>0</iyz>
+          <izz>1e-09</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+
+    <joint name='pitch_dummyjoint' type='revolute'>
+      <child>rotorwing</child>
+      <parent>roll-dummylink</parent>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>          
+          <lower>-0.349</lower>
+          <upper>0</upper>
+        </limit>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+            <cfm>0.000000</cfm>
+            <erp>0.900000</erp>
+        </ode>
+      </physics>
+    </joint>
+
+    <link name='rotorwing'>
+      <pose>0 0 0.40 0 0 0</pose>
+	  <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-07</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-07</iyy>
+          <iyz>0</iyz>
+          <izz>1e-07</izz>
+        </inertia>
+      </inertial>
+      <visual name='visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.75</radius>
+            <length>0.02</length>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
+
+   <plugin name="rotorwingplugin" filename="libgazebo_simple_rotor.so">
+      <force_link>base_link</force_link>
+      <force_pos> 0 0 0.4</force_pos>
+      <rotor_link>rotorwing</rotor_link>
     </plugin>
+
+  <!-- <plugin name="rotorwingplugin" filename="libLiftDragPlugin.so">
+      <a0>0.349</a0>
+      <cla>1.15</cla>
+      <cda>0.955</cda>
+      <cma>0</cma>
+      <alpha_stall>0.872</alpha_stall>
+      <cla_stall>-0.716</cla_stall>
+      <cda_stall>0.9</cda_stall>
+      <cma_stall>0</cma_stall>
+      <cp>0 0 0</cp>
+      <area>3.14</area>
+      <air_density>1.2041</air_density>
+      <forward>1 0 0</forward>
+      <upward>0 0 1</upward>
+      <link_name>rotorwing</link_name>
+    </plugin>-->
+
+
+<!--=========================================================== PX4Interface ================================================-->
 
     <plugin name='gazebo_imu_plugin' filename='libgazebo_imu_plugin.so'>
       <robotNamespace></robotNamespace>
@@ -592,7 +684,7 @@
       <motorSpeedCommandPubTopic>/gazebo/command/motor_speed</motorSpeedCommandPubTopic>
       <control_channels>
 
-    <channel name="propeller">
+   <channel name="propeller">
       <input_index>4</input_index>
       <input_offset>0</input_offset>
       <input_scaling>3500</input_scaling>
