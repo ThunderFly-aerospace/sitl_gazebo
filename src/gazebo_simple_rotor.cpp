@@ -3,6 +3,8 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
+#include "gazebo/transport/transport.hh"
+#include "gazebo/msgs/msgs.hh"
 
 #include <cmath>
 
@@ -41,6 +43,11 @@ namespace gazebo
 
 		this->updateConnection = event::Events::ConnectWorldUpdateBegin(
 			std::bind(&SimpleRotorPlugin::OnUpdate, this));
+
+        //messaging
+        node_handle_ = transport::NodePtr(new transport::Node());
+        node_handle_->Init("");
+        rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);
 
 	}
 
@@ -99,6 +106,12 @@ namespace gazebo
             gzdbg << "Alpha: " << alpha*360.0/(2.0*3.141592) << "\n";
 			gzdbg << "L: "<< liftForce <<"\n";
             gzdbg << "D: "<< dragForce <<"\n";
+
+
+            gazebo::msgs::Vector3d msg;
+        	gazebo::msgs::Set(&msg, liftForce);
+
+        	rotorfreq_pub_->Publish(msg);
 		}
 
 	}
@@ -132,6 +145,10 @@ namespace gazebo
                 CD=(alpha_degree-90)/90*-1.2+1.2;
             return CD;
         };
+
+        transport::NodePtr node_handle_;
+        transport::PublisherPtr rotorfreq_pub_;
+
 
   };
 

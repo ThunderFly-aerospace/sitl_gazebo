@@ -196,6 +196,8 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   groundtruth_sub_ = node_handle_->Subscribe("~/" + model_->GetName() + groundtruth_sub_topic_, &GazeboMavlinkInterface::GroundtruthCallback, this);
   vision_sub_ = node_handle_->Subscribe("~/" + model_->GetName() + vision_sub_topic_, &GazeboMavlinkInterface::VisionCallback, this);
 
+  rotorfreq_sub_ = node_handle_->Subscribe("~/" + model_->GetName() + "/RotorFreq", &GazeboMavlinkInterface::RotorFreqCallback, this);
+
   // Publish gazebo's motor_speed message
   motor_velocity_reference_pub_ = node_handle_->Advertise<mav_msgs::msgs::CommandMotorSpeed>("~/" + model_->GetName() + motor_velocity_reference_pub_topic_, 1);
 
@@ -672,6 +674,14 @@ void GazeboMavlinkInterface::GroundtruthCallback(GtPtr& groundtruth_msg){
   groundtruth_altitude = groundtruth_msg->altitude();
   // the rest of the data is obtained directly on this interface and sent to
   // the FCU
+}
+
+void GazeboMavlinkInterface::RotorFreqCallback(ConstVector3dPtr &_msg_v){
+    mavlink_rotor_frequency_t rotor_freq_msg;
+    rotor_freq_msg.measured_frequency_rpm=_msg_v->x();
+    mavlink_message_t msg;
+    mavlink_msg_rotor_frequency_encode_chan(1, 200, MAVLINK_COMM_0, &msg, &rotor_freq_msg);
+    send_mavlink_message(&msg);
 }
 
 void GazeboMavlinkInterface::LidarCallback(LidarPtr& lidar_message) {

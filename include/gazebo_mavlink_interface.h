@@ -235,6 +235,7 @@ private:
   void send_mavlink_message(const mavlink_message_t *message, const int destination_port = 0);
   void handle_message(mavlink_message_t *msg);
   void pollForMAVLinkMessages(double _dt, uint32_t _timeoutMs);
+  void RotorFreqCallback(ConstVector3dPtr &_msg_v);
 
   // Serial interface
   void open();
@@ -268,6 +269,7 @@ private:
   transport::SubscriberPtr gps_sub_;
   transport::SubscriberPtr groundtruth_sub_;
   transport::SubscriberPtr vision_sub_;
+  transport::SubscriberPtr rotorfreq_sub_;
 
   std::string imu_sub_topic_;
   std::string lidar_sub_topic_;
