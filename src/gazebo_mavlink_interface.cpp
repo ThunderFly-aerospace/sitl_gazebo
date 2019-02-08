@@ -679,6 +679,7 @@ void GazeboMavlinkInterface::GroundtruthCallback(GtPtr& groundtruth_msg){
 void GazeboMavlinkInterface::RotorFreqCallback(ConstVector3dPtr &_msg_v){
     mavlink_rotor_frequency_t rotor_freq_msg;
     rotor_freq_msg.measured_frequency_rpm=_msg_v->x();
+	rotor_freq_msg.estimated_accurancy_rpm=_msg_v->y();
     mavlink_message_t msg;
     mavlink_msg_rotor_frequency_encode_chan(1, 200, MAVLINK_COMM_0, &msg, &rotor_freq_msg);
     send_mavlink_message(&msg);

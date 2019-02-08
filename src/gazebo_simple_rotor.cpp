@@ -45,9 +45,9 @@ namespace gazebo
 			std::bind(&SimpleRotorPlugin::OnUpdate, this));
 
         //messaging
-        node_handle_ = transport::NodePtr(new transport::Node());
+     /*   node_handle_ = transport::NodePtr(new transport::Node());
         node_handle_->Init("");
-        rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);
+        rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);*/
 
 	}
 
@@ -63,8 +63,8 @@ namespace gazebo
 		const Vector3d & linVel=rotor_link->WorldLinearVel();
         if(linVel.Length()< SLOW_CONST)
         {
-            if(counter==DEBUG_CONST)
-                gzdbg << "Too slow \n";
+            /*if(counter==DEBUG_CONST)
+                gzdbg << "Too slow \n";*/
             return;
         }
 
@@ -81,8 +81,8 @@ namespace gazebo
         double wingVelocity=wingVel.Length();
         if(wingVelocity< SLOW_CONST)
         {
-            if(counter==DEBUG_CONST)
-                gzdbg << "Wing Too Slow \n";
+            /*if(counter==DEBUG_CONST)
+                gzdbg << "Wing Too Slow \n";*/
             return;
         }
 
@@ -103,15 +103,15 @@ namespace gazebo
 		//debuging loop
 		if(counter==DEBUG_CONST)
 		{
-            gzdbg << "Alpha: " << alpha*360.0/(2.0*3.141592) << "\n";
-			gzdbg << "L: "<< liftForce <<"\n";
-            gzdbg << "D: "<< dragForce <<"\n";
+            //gzdbg << "Alpha: " << alpha*360.0/(2.0*3.141592) << "\n";
+			//gzdbg << "L: "<< liftForce <<"\n";
+            //gzdbg << "D: "<< dragForce <<"\n";
 
 
-            gazebo::msgs::Vector3d msg;
+          /*  gazebo::msgs::Vector3d msg;
         	gazebo::msgs::Set(&msg, liftForce);
 
-        	rotorfreq_pub_->Publish(msg);
+        	rotorfreq_pub_->Publish(msg);*/
 		}
 
 	}
