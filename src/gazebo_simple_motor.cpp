@@ -80,7 +80,7 @@ namespace gazebo
 		//debuging loop
 		if(counter==DEBUG_CONST)
 		{
-            //gzdbg << "Thortle: " << force << "\n";
+            gzdbg << "Thortle: " << force << "\n";
 		}
 	}
 

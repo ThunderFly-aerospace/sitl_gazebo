@@ -12,7 +12,7 @@
 #define DEBUG_CONST 500
 
 #define AIR_DENSITY 1.2041
-#define AREA 0.5
+#define AREA 3.14
 
 using namespace ignition::math;
 
@@ -86,10 +86,10 @@ namespace gazebo
             return;
         }
 
-		double alpha=std::atan2(wingVel.Y(),wingVel.X());
+		double alpha=-std::atan2(wingVel.Y(),wingVel.X());
         double q=0.5*AIR_DENSITY*wingVelocity*wingVelocity*AREA;
-        double L=q*getCL(-alpha);
-        double D=q*getCD(-alpha);
+        double L=q*getCL(alpha);
+        double D=q*getCD(alpha);
 
         Vector3d liftDirection = linVel.Cross(wingCut).Normalize();
         Vector3d liftForce=L*liftDirection;
@@ -103,9 +103,11 @@ namespace gazebo
 		//debuging loop
 		if(counter==DEBUG_CONST)
 		{
-            //gzdbg << "Alpha: " << alpha*360.0/(2.0*3.141592) << "\n";
-			//gzdbg << "L: "<< liftForce <<"\n";
-            //gzdbg << "D: "<< dragForce <<"\n";
+            const Quaterniond baseRot=this->base_link->WorldPose().Rot();
+            
+            gzdbg << "Alpha: " << alpha*360.0/(2.0*3.141592) << "\n";
+			gzdbg << "L: "<< baseRot.Inverse()*liftForce <<"\n";
+            gzdbg << "D: "<< baseRot.Inverse()*dragForce <<"\n";
 
 
           /*  gazebo::msgs::Vector3d msg;
@@ -127,10 +129,13 @@ namespace gazebo
         {
             double alpha_degree=alpha*360.0/(2.0*3.141592);
             double CL=0.0;
+            if(alpha_degree > 0  && alpha_degree <= 10)
+                CL=(alpha_degree)*0.07;
             if(alpha_degree > 10  && alpha_degree <= 35)
                 CL=(alpha_degree-10)*0.004+0.7;
             if(alpha_degree > 35 && alpha_degree < 90)
                 CL=(alpha_degree-35)*-0.014+0.8;
+            return CL;
         };
 
         double getCD(double alpha)
@@ -143,7 +148,7 @@ namespace gazebo
                 CD=alpha_degree/90*1.2;
             if(alpha_degree > 90 && alpha_degree <= 180)
                 CD=(alpha_degree-90)/90*-1.2+1.2;
-            return CD;
+            return fabs(CD);
         };
 
         transport::NodePtr node_handle_;
