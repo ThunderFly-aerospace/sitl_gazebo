@@ -50,7 +50,7 @@
         <material>
           <script>
             <name>Gazebo/Yellow</name>
-            <uri>__defaultdal jsem tomu minimální __</uri>
+            <uri>__default__</uri>
           </script>
         </material>
       </visual>
@@ -236,7 +236,7 @@
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.012</mass>
-        <inertia>dal jsem tomu minimální 
+        <inertia>
           <ixx>0.000001</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
@@ -420,7 +420,7 @@
       <area>0.01</area>
       <air_density>1.2041</air_density>
       <forward>1 0 0</forward>
-      <upward>0 1 0</upward>
+      <upward>0 -1 0</upward>
       <link_name>base_link</link_name>
       <control_joint_name>
         left_rudder_joint
@@ -440,7 +440,7 @@
       <area>0.01</area>
       <air_density>1.2041</air_density>
       <forward>1 0 0</forward>
-      <upward>0 -1 0</upward>
+      <upward>0 1 0</upward>
       <link_name>base_link</link_name>
       <control_joint_name>
         right_rudder_joint
@@ -497,7 +497,7 @@
       <base_link>base_link</base_link>
       <force_pos>0.23 0  0.05</force_pos>
       <force_dir>0.99  0 -0.1</force_dir>
-      <coef>0.05</coef>
+      <coef>0.01</coef>
     </plugin>
 
 
@@ -700,7 +700,7 @@
           <joint_control_pid>
             <p>0.6</p>
             <i>0</i>
-            <d>0.2</d>
+            <d>0.4</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
             <cmdMax>20</cmdMax>
@@ -720,7 +720,7 @@
           <joint_control_pid>
             <p>0.6</p>
             <i>0</i>
-            <d>0.2</d>
+            <d>0.4</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
             <cmdMax>20</cmdMax>
@@ -736,7 +736,16 @@
           <input_scaling>1</input_scaling>
           <zero_position_disarmed>0</zero_position_disarmed>
           <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position_kinematic</joint_control_type>
+          <joint_control_type>position</joint_control_type>
+          <joint_control_pid>
+            <p>10</p>
+            <i>0</i>
+            <d>0.2</d>
+            <iMax>0</iMax>
+            <iMin>0</iMin>
+            <cmdMax>50</cmdMax>
+            <cmdMin>-50</cmdMin>
+          </joint_control_pid>
           <joint_name>left_rudder_joint</joint_name>
         </channel>
 
@@ -746,7 +755,16 @@
           <input_scaling>1</input_scaling>
           <zero_position_disarmed>0</zero_position_disarmed>
           <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position_kinematic</joint_control_type>
+          <joint_control_type>position</joint_control_type>
+          <joint_control_pid>
+            <p>10</p>
+            <i>0</i>
+            <d>0.2</d>
+            <iMax>0</iMax>
+            <iMin>0</iMin>
+            <cmdMax>50</cmdMax>
+            <cmdMin>-50</cmdMin>
+          </joint_control_pid>
           <joint_name>right_rudder_joint</joint_name>
         </channel>
 
