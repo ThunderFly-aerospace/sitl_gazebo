@@ -300,7 +300,7 @@
 <!--=================================================== OCAS ===================================================================-->
 
 
-    <link name="left_rudder">
+     <link name="left_rudder">
       <pose>-0.744 0.15 0.07 0 0 0 </pose>
       <inertial>
         <mass>0.006</mass>
@@ -698,7 +698,7 @@
           <joint_control_type>position</joint_control_type>
           <joint_name>roll_dummyjoint</joint_name>
           <joint_control_pid>
-            <p>0.6</p>
+            <p>0.7</p>
             <i>0</i>
             <d>0.4</d>
             <iMax>0</iMax>
@@ -718,7 +718,7 @@
           <joint_control_type>position</joint_control_type>
           <joint_name>pitch_dummyjoint</joint_name>
           <joint_control_pid>
-            <p>0.6</p>
+            <p>0.7</p>
             <i>0</i>
             <d>0.4</d>
             <iMax>0</iMax>
