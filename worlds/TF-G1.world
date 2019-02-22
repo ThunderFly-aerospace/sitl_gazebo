@@ -13,9 +13,29 @@
     <!-- <include>
       <uri>model://asphalt_plane</uri>
     </include> -->
-   <include>
+
+   <!--<include>
       <uri>model://autogyro</uri>
-    </include>
+      <pose>0 0 0.2 0 0 0</pose>
+   </include>-->
+
+   <model name='pokus'>
+       <include>
+          <uri>model://autogyro</uri>
+          <pose>0 0 1.67 0 0 0</pose>
+       </include>
+       <include>
+          <uri>model://big_box</uri>
+          <name>box</name>
+          <pose>0 0 0.75 0 0 0</pose>
+       </include>
+       <joint name='car_connection' type='ball'>
+          <parent>box::link</parent>
+          <child>autogyro::base_link</child>
+          <pose>0.1 0 0 0 0 0 </pose>
+        </joint>
+        <self_collide>1</self_collide>
+    </model>
 
     <gravity>0 0 -9.8066</gravity>
 
