@@ -14,11 +14,39 @@
       <uri>model://asphalt_plane</uri>
     </include> -->
 
-   <include>
+  
+   <!--single autogyro-->
+   <!--<include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>
+   </include>-->
 
+   <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
+   <!--<model name='pokus'>
+	   <include>
+		  <uri>model://autogyro</uri>
+		  <pose frame=''>0 0 2 0 0 0</pose>
+	   </include>
+	   <model name='box'>
+		  <pose> 0 0 3 0 0 0 </pose>
+		  <static>1</static>
+		  <link name='link'>
+		     <visual name='visual'>
+		        <geometry>
+		           <box>
+            	      <size>0.1 0.1 0.1</size>
+          	       </box>
+		        </geometry>
+		     </visual>
+		  </link>
+		</model>	
+	 	<joint name='hang_joint' type='ball'>
+		   <parent>box::link</parent>
+		   <child>autogyro::rotorwing</child>
+		</joint>
+   </model>-->
+ 
+   <!-- autogyro on moving mox -->
    <!--<model name='pokus'>
        <include>
           <uri>model://autogyro</uri>
@@ -37,6 +65,71 @@
         <self_collide>1</self_collide>
     </model>-->
 
+
+
+   <!-- autogyro on crane -->
+   <!--<model name='pokus'>
+	   <include>
+		  <uri>model://autogyro</uri>
+		  <pose frame=''>1.06546 -8.49986 12.549 3.14159 -1.53085 3.14159</pose>
+	   </include>
+		<model name='tower_crane'>
+		  <static>1</static>
+		  <link name='link'>
+		    <collision name='collision'>
+		      <geometry>
+		        <mesh>
+		          <uri>model://tower_crane/meshes/tower_crane.dae</uri>
+		        </mesh>
+		      </geometry>
+		    </collision>
+		    <visual name='visual'>
+		      <geometry>
+		        <mesh>
+		          <uri>model://tower_crane/meshes/tower_crane.dae</uri>
+		        </mesh>
+		      </geometry>
+		    </visual>
+		  </link>
+		  <pose frame=''>-1.06545 8.49986 -12.5489 0 -0 0</pose>
+		</model>	
+	 	<joint name='link_JOINT_0' type='universal'>
+		  <parent>tower_crane::link</parent>
+		  <child>autogyro::propeller</child>
+		  <pose frame=''>0 0 0 0 -0 0</pose>
+		  <axis>
+		    <xyz>1 0 0</xyz>
+		    <use_parent_model_frame>0</use_parent_model_frame>
+		    <limit>
+		      <lower>-1.79769e+308</lower>
+		      <upper>1.79769e+308</upper>
+		      <effort>-1</effort>
+		      <velocity>-1</velocity>
+		    </limit>
+		    <dynamics>
+		      <spring_reference>0</spring_reference>
+		      <spring_stiffness>1</spring_stiffness>
+		      <damping>10</damping>
+		      <friction>1</friction>
+		    </dynamics>
+		  </axis>
+		  <physics>
+		    <ode>
+		      <limit>
+		        <cfm>0</cfm>
+		        <erp>0.2</erp>
+		      </limit>
+		      <suspension>
+		        <cfm>0</cfm>
+		        <erp>0.2</erp>
+		      </suspension>
+		    </ode>
+		  </physics>
+		</joint>
+   </model>-->
+
+
+   
     <gravity>0 0 -9.8066</gravity>
 
     <physics name='default_physics' default='true' type='ode'>
