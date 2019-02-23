@@ -22,7 +22,7 @@
    </include>-->
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
-   <!--<model name='pokus'>
+   <!--<model name='hanging_autogyro'>
 	   <include>
 		  <uri>model://autogyro</uri>
 		  <pose frame=''>0 0 2 0 0 0</pose>
@@ -47,7 +47,7 @@
    </model>-->
  
    <!-- autogyro on moving mox -->
-   <!--<model name='pokus'>
+   <model name='moving_box'>
        <include>
           <uri>model://autogyro</uri>
           <pose>0 0 1.67 0 0 0</pose>
@@ -63,7 +63,7 @@
           <pose>0.1 0 0 0 0 0 </pose>
         </joint>
         <self_collide>1</self_collide>
-    </model>-->
+    </model>
 
 
 

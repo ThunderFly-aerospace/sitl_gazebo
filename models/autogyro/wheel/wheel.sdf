@@ -33,7 +33,7 @@
           <contact>
             <ode>
               <min_depth>0.001</min_depth>
-              <kp>1e10</kp>
+              <kp>1e6</kp>
             </ode>
           </contact>
         </surface>
