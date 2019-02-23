@@ -14,12 +14,12 @@
       <uri>model://asphalt_plane</uri>
     </include> -->
 
-   <!--<include>
+   <include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>-->
+   </include>
 
-   <model name='pokus'>
+   <!--<model name='pokus'>
        <include>
           <uri>model://autogyro</uri>
           <pose>0 0 1.67 0 0 0</pose>
@@ -35,7 +35,7 @@
           <pose>0.1 0 0 0 0 0 </pose>
         </joint>
         <self_collide>1</self_collide>
-    </model>
+    </model>-->
 
     <gravity>0 0 -9.8066</gravity>
 
