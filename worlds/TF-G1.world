@@ -189,15 +189,15 @@
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
 
-<!--         <track_visual>
-          <name>autogyro</name>
+         <track_visual>
+          <name>moving_box</name>
           <use_model_frame>true</use_model_frame>
-          <static>true</static>
-          <min_dist>2</min_dist>
-          <max_dist>5</max_dist>
-	        <xyz> -4 0 0.5</xyz>
-          <inherit_yaw>true</inherit_yaw>
-        </track_visual> -->
+		  <static>true</static>
+		  <inherit_yaw>false</inherit_yaw>
+          <xyz> 0 6 2</xyz>
+          <min_dist>8</min_dist>
+          <max_dist>8</max_dist>	      
+        </track_visual>
 
       </camera>
     </gui>
