@@ -290,6 +290,8 @@ add_library(gazebo_wind_plugin SHARED src/gazebo_wind_plugin.cpp)
 add_library(gazebo_rotor_model SHARED src/gazebo_rotor_model.cpp)
 add_library(gazebo_simple_rotor SHARED src/gazebo_simple_rotor.cpp)
 add_library(gazebo_simple_motor SHARED src/gazebo_simple_motor.cpp)
+add_library(gazebo_const_speed_plugin SHARED src/gazebo_const_speed_plugin.cpp)
+
 
 set(plugins
   gazebo_geotagged_images_plugin
@@ -310,6 +312,7 @@ set(plugins
   gazebo_rotor_model
   gazebo_simple_rotor
   gazebo_simple_motor
+  gazebo_const_speed_plugin
   )
 
 foreach(plugin ${plugins})

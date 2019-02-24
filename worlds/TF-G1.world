@@ -50,12 +50,12 @@
    <model name='moving_box'>
        <include>
           <uri>model://autogyro</uri>
-          <pose>0 0 1.67 0 0 0</pose>
+          <pose>0 0 1.2 0 0 0</pose>
        </include>
        <include>
-          <uri>model://big_box</uri>
+          <uri>model://autogyro/moving_box</uri>
           <name>box</name>
-          <pose>0 0 0.75 0 0 0</pose>
+          <pose>0 0 0 0 0 0</pose>
        </include>
        <joint name='car_connection' type='ball'>
           <parent>box::link</parent>
