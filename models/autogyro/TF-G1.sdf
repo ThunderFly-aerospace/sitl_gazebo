@@ -4,7 +4,7 @@
     <link name='base_link'>
       <pose>0 0 0 0 0 0</pose>
       <inertial>
-        <pose>0.05 0 -0.05 0 0 0</pose>
+        <pose>0.05 0 0.05 0 0 0</pose>
         <mass>4.9</mass>
         <inertia>
           <ixx>0.1</ixx>
@@ -497,7 +497,7 @@
 
    <plugin name="rotorwingplugin" filename="libgazebo_simple_rotor.so">
       <force_link>base_link</force_link>
-      <force_pos> -0.05 0 0.4</force_pos>
+      <force_pos> -0.05 0 0.3</force_pos>
       <rotor_link>rotorwing</rotor_link>
     </plugin>
 

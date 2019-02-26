@@ -57,10 +57,13 @@
           <name>box</name>
           <pose>0 0 0 0 0 0</pose>
        </include>
-       <joint name='car_connection' type='ball'>
+       <joint name='car_connection' type='revolute'>
           <parent>box::link</parent>
           <child>autogyro::base_link</child>
-          <pose>0.1 0 0 0 0 0 </pose>
+          <pose>0 0 0 0 0 0 </pose>
+          <axis>
+            <xyz>1 0 0</xyz>
+          </axis>
         </joint>
         <self_collide>1</self_collide>
     </model>
