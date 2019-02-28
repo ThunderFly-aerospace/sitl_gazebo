@@ -16,10 +16,10 @@
 
   
    <!--single autogyro-->
-   <!--<include>
+   <include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>-->
+   </include>
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
    <!--<model name='hanging_autogyro'>
@@ -47,7 +47,7 @@
    </model>-->
  
    <!-- autogyro on moving mox -->
-   <model name='moving_box'>
+   <!--<model name='moving_box'>
        <include>
           <uri>model://autogyro</uri>
           <pose>0 0 1.2 0 0 0</pose>
@@ -66,7 +66,7 @@
           </axis>
         </joint>
         <self_collide>1</self_collide>
-    </model>
+    </model>-->
 
 
 
@@ -192,7 +192,7 @@
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
 
-         <track_visual>
+         <!--<track_visual>
           <name>moving_box</name>
           <use_model_frame>true</use_model_frame>
 		  <static>true</static>
@@ -200,7 +200,7 @@
           <xyz> 0 6 2</xyz>
           <min_dist>8</min_dist>
           <max_dist>8</max_dist>	      
-        </track_visual>
+        </track_visual>-->
 
       </camera>
     </gui>

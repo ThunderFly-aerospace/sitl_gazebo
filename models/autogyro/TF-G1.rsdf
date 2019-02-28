@@ -1,13 +1,47 @@
 <sdf version='1.5'>
+<%
+  # Autogyro parameters
 
+  #body mass and its position - approximation of CenterOfMass 
+  mass   = 4.9
+  t_x = 0.05
+  t_y = 0
+  t_z = 0.05
+
+  #wheels position
+  front_x = 0.14
+  front_z = -0.095
+
+  rear_x = -0.22
+  rear_y = 0.30 #jedno je + druhý -
+  rear_z = -0.095
+
+  #tail
+  tail_x= -0.8
+  #ocas míří ve směru osy x
+
+  #motor
+  motor_x=0.23
+  motor_y=0
+  motor_z=0.063
+    #merový vektor tahu, měl by mít normu 1
+  motor_dir_x=0.99
+  motor_dir_y=0
+  motor_dir_z=-0.1
+
+  #rotor
+  rotor_x = 0.0
+  rotor_y = 0.0
+  rotor_z = 0.4
+%>
 
   <model name='autogyro'>
    <pose>0 0 0.2 0 0 0</pose>
     <link name='base_link'>
       <pose>0 0 0 0 0 0</pose>
       <inertial>
-        <pose>0.05 0 0.05 0 0 0</pose>
-        <mass>4.9</mass>
+        <pose><%= t_x %> <%= t_y %> <%= t_z %> 0 0 0</pose>
+        <mass><%= mass %></mass>
         <inertia>
           <ixx>0.1</ixx>
           <ixy>0</ixy>
@@ -104,19 +138,19 @@
 	<include>
           <uri>model://autogyro/wheel</uri>
 		  <name>center_front_wheel</name>
-          <pose> 0.14 0.0 -0.095 1.5707 1.5707</pose> 
+          <pose> <%= front_x %> 0.0 <%= front_z %> 1.5707 1.5707</pose> 
     </include>
 
 	<include>
           <uri>model://autogyro/wheel</uri>
 		  <name>left_rear_wheel</name>
-          <pose> -0.22 0.3 -0.095 1.5707 1.5707</pose>  
+          <pose> <%= rear_x %> <%= rear_y %> <%= rear_z %> 1.5707 1.5707</pose>  
     </include>
 
 	<include>
           <uri>model://autogyro/wheel</uri>
 		  <name>right_rear_wheel</name>
-          <pose> -0.22 -0.3 -0.095 1.5707 1.5707</pose>  
+          <pose> <%= rear_x %> <%= -rear_y %> <%= rear_z %> 1.5707 1.5707</pose>  
     </include>
   
     <joint name="center_front_wheel_joint" type="revolute">
@@ -281,7 +315,7 @@
       <cla_stall>-3.85</cla_stall>
       <cda_stall>-0.9233984055</cda_stall>
       <cma_stall>0</cma_stall>
-      <cp>-0.8 0 0</cp>
+      <cp><%= tail_x %> 0 0</cp>
       <area>0.02</area>
       <air_density>1.2041</air_density>
       <forward>1 0 0</forward>
@@ -297,7 +331,7 @@
       <cla_stall>-3.85</cla_stall>
       <cda_stall>-0.9233984055</cda_stall>
       <cma_stall>0</cma_stall>
-      <cp>-0.8 -0.15 0.00</cp>
+      <cp><%= tail_x %> -0.15 0.00</cp>
       <area>0.01</area>
       <air_density>1.2041</air_density>
       <forward>1 0 0</forward>
@@ -317,7 +351,7 @@
       <cla_stall>-3.85</cla_stall>
       <cda_stall>-0.9233984055</cda_stall>
       <cma_stall>0</cma_stall>
-      <cp>-0.8 -0.15 0.00</cp>
+      <cp><%= tail_x %> -0.15 0.00</cp>
       <area>0.01</area>
       <air_density>1.2041</air_density>
       <forward>1 0 0</forward>
@@ -335,12 +369,12 @@
       <child>propeller</child>
       <parent>base_link</parent>
       <axis>
-        <xyz>0.99 0 -0.1</xyz>
+        <xyz><%= motor_dir_x %> <%= motor_dir_y %> <%= motor_dir_z%></xyz>
       </axis>
     </joint>
 
     <link name='propeller'>
-      <pose>0.23 0 0.063 0 1.6714649789527254 0</pose>
+      <pose><%= motor_x %> <%= motor_y %> <%= motor_z%> 0 <%= Math::PI/2-Math.atan2(motor_dir_z,motor_dir_x) %> 0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.01</mass>
@@ -376,8 +410,8 @@
       <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
       <motorNumber>4</motorNumber>
       <base_link>base_link</base_link>
-      <force_pos>0.23 0 0.063</force_pos>
-      <force_dir>0.99 0 -0.1</force_dir>
+      <force_pos><%= motor_x %> <%= motor_y %> <%= motor_z%></force_pos>
+      <force_dir><%= motor_dir_x %> <%= motor_dir_y %> <%= motor_dir_z%></force_dir>
       <coef>0.01</coef>
     </plugin>
 
@@ -436,7 +470,7 @@
     </joint>
 
     <link name='roll-dummylink'>
-      <pose>0.0 0.0 0.4 0 0 0</pose>
+      <pose><%= rotor_x%> <%= rotor_y%> <%= rotor_z%> 0 0 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.01</mass>
@@ -473,7 +507,7 @@
     </joint>
 
     <link name='rotorwing'>
-      <pose>0.0 0.0 0.4 0 0 0</pose>
+      <pose><%= rotor_x%> <%= rotor_y%> <%= rotor_z%> 0 0 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.1</mass>
@@ -499,7 +533,7 @@
 
    <plugin name="rotorwingplugin" filename="libgazebo_simple_rotor.so">
       <force_link>base_link</force_link>
-      <force_pos> -0.05 0.0 0.35000000000000003</force_pos>
+      <force_pos> <%= rotor_x-t_x%> <%= rotor_y-t_y%> <%= rotor_z-t_z%></force_pos>
       <rotor_link>rotorwing</rotor_link>
     </plugin>
 
