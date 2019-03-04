@@ -656,7 +656,7 @@
           <joint_control_pid>
             <p>10</p>
             <i>0</i>
-            <d>0.2</d>
+            <d>0.05</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
             <cmdMax>50</cmdMax>
@@ -676,7 +676,7 @@
           <joint_control_pid>
             <p>10</p>
             <i>0</i>
-            <d>0.2</d>
+            <d>0.05</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
             <cmdMax>50</cmdMax>
