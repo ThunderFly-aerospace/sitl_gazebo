@@ -4,7 +4,7 @@
 
   #body mass and its position - approximation of CenterOfMass 
   mass   = 4.9
-  t_x = 0.05
+  t_x = 0.20
   t_y = 0
   t_z = 0.05
 
