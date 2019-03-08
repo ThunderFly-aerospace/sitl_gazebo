@@ -46,7 +46,7 @@
 		</joint>
 		<plugin name="slow" filename="libgazebo_slow_plugin.so">
 			  <base_link>autogyro::base_link</base_link>
-			  <coef>0.999</coef>
+			  <coef>5</coef>
 		</plugin>
    </model>
  

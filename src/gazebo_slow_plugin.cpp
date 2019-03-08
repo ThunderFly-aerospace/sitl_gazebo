@@ -61,15 +61,15 @@ namespace gazebo
 		}
 
         const Vector3d& lspeed=this->base_link->WorldLinearVel();
-        const Vector3d& aspeed=this->base_link->WorldAngularVel();
 
-        base_link->SetAngularVel(this->coef*aspeed);
-		base_link->SetLinearVel(this->coef*lspeed);
+		Vector3d force=-(this->coef)*lspeed;
 
+        base_link->AddForceAtRelativePosition(force, Vector3d(0,0,0));
+		
 		//debuging loop
 		if(counter==DEBUG_CONST)
 		{
-            gzdbg << "Speed: " << lspeed <<" " << aspeed << "\n";
+            gzdbg << "Braking force: " << force <<"\n";
 		}
 	}
 	
