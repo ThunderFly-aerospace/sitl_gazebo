@@ -7,10 +7,10 @@
 
   t_x = 0.17
   t_y = 0
-  t_z = 0.01
+  t_z = -0.05
 
   #wheels position
-  front_x = 0.14
+  front_x = 0.20
   front_z = -0.095
 
   rear_x = -0.22
