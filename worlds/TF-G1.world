@@ -16,13 +16,13 @@
 
   
    <!--single autogyro-->
-   <!--<include>
+   <include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>-->
+   </include>
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
-   <model name='hanging_autogyro'>
+   <!--<model name='hanging_autogyro'>
 	   <include>
 		  <uri>model://autogyro</uri>
 		  <pose frame=''>0 0 2 0 0 0</pose>
@@ -48,7 +48,7 @@
 			  <base_link>autogyro::base_link</base_link>
 			  <coef>5</coef>
 		</plugin>
-   </model>
+   </model>-->
  
    <!-- autogyro on moving mox -->
    <!--<model name='moving_box'>

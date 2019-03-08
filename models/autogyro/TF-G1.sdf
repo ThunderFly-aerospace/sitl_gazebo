@@ -104,7 +104,7 @@
 	<include>
           <uri>model://autogyro/wheel</uri>
 		  <name>center_front_wheel</name>
-          <pose> 0.14 0.0 -0.095 1.5707 1.5707</pose> 
+          <pose> 0.2 0.0 -0.095 1.5707 1.5707</pose> 
     </include>
 
 	<include>
@@ -453,7 +453,7 @@
 
 
     <joint name='pitch_dummyjoint' type='revolute'>
-      <child>rotorwing</child>
+      <child>spin-dummylink</child>
       <parent>roll-dummylink</parent>
       <pose>0 0 0 0 0 0</pose>
       <axis>
@@ -472,36 +472,139 @@
       </physics>
     </joint>
 
-    <link name='rotorwing'>
+    <link name='spin-dummylink'>
       <pose>0.0 0.0 0.4 0 0 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.1</mass>
+        <mass>0.01</mass>
         <inertia>
-          <ixx>1e-03</ixx>
+          <ixx>1e-04</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>1e-03</iyy>
+          <iyy>1e-04</iyy>
           <iyz>0</iyz>
-          <izz>1e-03</izz>
+          <izz>1e-04</izz>
         </inertia>
       </inertial>
-      <visual name='visual'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.75</radius>
-            <length>0.02</length>
-          </cylinder>
-        </geometry>
-      </visual>
     </link>
 
-   <plugin name="rotorwingplugin" filename="libgazebo_simple_rotor.so">
-      <force_link>base_link</force_link>
-      <force_pos> -0.17 0.0 0.39</force_pos>
-      <rotor_link>rotorwing</rotor_link>
-    </plugin>
+    <joint name='spin_dummyjoint' type='revolute'>
+      <child>flap-dummylink</child>
+      <parent>roll-dummylink</parent>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+            <cfm>0.000000</cfm>
+            <erp>0.900000</erp>
+        </ode>
+      </physics>
+    </joint>
+
+    <link name='flap-dummylink'>
+      <pose>0.0 0.0 0.4 0 0 0</pose>
+	  <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>1e-04</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-04</iyy>
+          <iyz>0</iyz>
+          <izz>1e-04</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint name='flap_left_joint' type='revolute'>
+      <child>left-bladelink</child>
+      <parent>flap-dummylink</parent>
+      <pose>0 0.5 0 0 0 0</pose>
+      <axis>
+        <xyz>1 1 0</xyz>
+        <limit>          
+          <lower>-0.349</lower>
+          <upper>0.349</upper>
+        </limit>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+            <cfm>0.000000</cfm>
+            <erp>0.900000</erp>
+        </ode>
+      </physics>
+    </joint>
+
+    <link name='left-bladelink'>
+      <pose>0.0 -0.5 0.4 0 0 0</pose>
+	  <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.5</mass>
+        <inertia>
+          <ixx>1e-02</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-02</iyy>
+          <iyz>0</iyz>
+          <izz>1e-02</izz>
+        </inertia>
+      </inertial>
+	  <visual name='visual'>
+		  <geometry>
+		       <box>
+          	      <size>0.1 1 0.02</size>
+               </box>
+		 </geometry>
+	 </visual>
+    </link>
+
+ 	<joint name='flap_right_joint' type='revolute'>
+      <child>right-bladelink</child>
+      <parent>flap-dummylink</parent>
+      <pose>0 -0.5 0 0 0 0</pose>
+      <axis>
+        <xyz>1 1 0</xyz>
+        <limit>          
+          <lower>-0.349</lower>
+          <upper>0.349</upper>
+        </limit>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+            <cfm>0.000000</cfm>
+            <erp>0.900000</erp>
+        </ode>
+      </physics>
+    </joint>
+
+    <link name='right-bladelink'>
+      <pose>0.0 0.5 0.4 0 0 0</pose>
+	  <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.5</mass>
+        <inertia>
+          <ixx>1e-02</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-02</iyy>
+          <iyz>0</iyz>
+          <izz>1e-02</izz>
+        </inertia>
+      </inertial>
+	  <visual name='visual'>
+		  <geometry>
+		       <box>
+          	      <size>0.1 1 0.02</size>
+               </box>
+		 </geometry>
+	 </visual>
+    </link>
 
   <!-- <plugin name="rotorwingplugin" filename="libLiftDragPlugin.so">
       <a0>0.349</a0>
