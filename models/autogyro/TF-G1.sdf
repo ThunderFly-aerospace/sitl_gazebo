@@ -426,10 +426,10 @@
       <axis>
         <xyz>1 0 0</xyz>
         <limit>          
-          <!--<lower>-0.349</lower>
-          <upper>0.349</upper>-->
-		  <lower>0.0</lower>
-          <upper>0.0</upper>
+          <lower>-0.349</lower>
+          <upper>0.349</upper>
+		 <!-- <lower>0.0</lower>
+          <upper>0.0</upper>-->
         </limit>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
@@ -465,10 +465,10 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit>          
-          <!--<lower>-0.349</lower>
-          <upper>0</upper>-->
-		  <lower>-0.2</lower>
-          <upper>-0.2</upper>
+          <lower>-0.349</lower>
+          <upper>0</upper>
+		  <!--<lower>-0.2</lower>
+          <upper>-0.2</upper>-->
         </limit>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
@@ -533,7 +533,7 @@
       <parent>flap-dummylink</parent>
       <pose>0 0.5 0 0 0 0</pose>
       <axis>
-        <xyz>1 0 0</xyz>
+        <xyz>0.94 -0.35 0</xyz>
         <limit>          
           <lower>-0.10</lower>
           <upper>0.1</upper>
@@ -576,7 +576,7 @@
       <parent>flap-dummylink</parent>
       <pose>0 -0.5 0 0 0 0</pose>
       <axis>
-        <xyz>1 0 0</xyz>
+        <xyz>-0.94 0.35 0</xyz>
         <limit>          
           <lower>-0.10</lower>
           <upper>0.1</upper>
@@ -1036,7 +1036,7 @@
 
     <!-- manuální ovládání placičky-->
 
-     <!--  <channel name="roll_channel">
+      <channel name="roll_channel">
           <input_index>2</input_index>
           <input_offset>0</input_offset>
           <input_scaling>0.09</input_scaling>
@@ -1046,13 +1046,13 @@
           <joint_control_type>position</joint_control_type>
           <joint_name>roll_dummyjoint</joint_name>
           <joint_control_pid>
-            <p>5</p>
+            <p>1000</p>
             <i>0</i>
             <d>1</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
-            <cmdMax>20</cmdMax>
-            <cmdMin>-20</cmdMin>
+            <cmdMax>100</cmdMax>
+            <cmdMin>-100</cmdMin>
           </joint_control_pid>
         </channel>
 
@@ -1066,15 +1066,15 @@
           <joint_control_type>position</joint_control_type>
           <joint_name>pitch_dummyjoint</joint_name>
           <joint_control_pid>
-            <p>5</p>
+            <p>1000</p>
             <i>0</i>
             <d>1</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
-            <cmdMax>20</cmdMax>
-            <cmdMin>-20</cmdMin>
+            <cmdMax>100</cmdMax>
+            <cmdMin>-100</cmdMin>
           </joint_control_pid>
-        </channel>-->
+        </channel>
 
         <!-- ocas-->
 
