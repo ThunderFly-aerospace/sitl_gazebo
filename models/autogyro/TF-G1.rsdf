@@ -547,6 +547,10 @@
       </physics>
     </joint>
 
+    <plugin name="speed" filename="libgazebo_joint_speed_plugin.so">
+      <joint>spin_dummyjoint</joint>
+    </plugin>
+
     <link name='flap-dummylink'>
       <pose><%= rotor_x%> <%= rotor_y%> <%= rotor_z%> 0 0 0</pose>
 	  <inertial>

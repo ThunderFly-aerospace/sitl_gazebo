@@ -512,6 +512,10 @@
       </physics>
     </joint>
 
+    <plugin name="speed" filename="libgazebo_joint_speed_plugin.so">
+      <joint>spin_dummyjoint</joint>
+    </plugin>
+
     <link name='flap-dummylink'>
       <pose>0.0 0.0 0.4 0 0 0</pose>
 	  <inertial>
