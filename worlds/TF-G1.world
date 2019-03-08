@@ -16,13 +16,13 @@
 
   
    <!--single autogyro-->
-   <include>
+   <!--<include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>
+   </include>-->
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
-   <!--<model name='hanging_autogyro'>
+   <model name='hanging_autogyro'>
 	   <include>
 		  <uri>model://autogyro</uri>
 		  <pose frame=''>0 0 2 0 0 0</pose>
@@ -44,7 +44,11 @@
 		   <parent>box::link</parent>
 		   <child>autogyro::rotorwing</child>
 		</joint>
-   </model>-->
+		<plugin name="slow" filename="libgazebo_slow_plugin.so">
+			  <base_link>autogyro::base_link</base_link>
+			  <coef>0.999</coef>
+		</plugin>
+   </model>
  
    <!-- autogyro on moving mox -->
    <!--<model name='moving_box'>
