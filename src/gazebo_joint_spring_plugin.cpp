@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-#define DEBUG_CONST 10
+#define DEBUG_CONST 100
 #define SLOW_CONST 0.1
 
 
@@ -54,16 +54,16 @@ namespace gazebo
 		}
 
 
-		physics::LinkPtr parent_link=this->joint->GetParent();
-        physics::LinkPtr child_link=this->joint->GetChild();
-        const Pose3d parent_pos_w=parent_link->WorldPose();
-        const Pose3d child_pos_w=child_link->WorldPose();
-        const Vector3d joint_pos_w=this->joint->WorldPose().Pos();
+		const physics::LinkPtr& parent_link=this->joint->GetParent();
+        const physics::LinkPtr& child_link=this->joint->GetChild();
+        const Pose3d& parent_pos_w=parent_link->WorldPose();
+        const Pose3d& child_pos_w=child_link->WorldPose();
+        const Vector3d& joint_pos_w=this->joint->WorldPose().Pos();
 
         Vector3d parent_point_w = parent_pos_w.Pos()+parent_pos_w.Rot()*this->parent_point;
         Vector3d child_point_w = child_pos_w.Pos()+child_pos_w.Rot()*this->child_point;
 
-        const Vector3d joint_ax=this->joint->GlobalAxis(0);
+        const Vector3d& joint_ax=this->joint->GlobalAxis(0);
 
         //setup coordinate system on plate
         Vector3d R1=(parent_point_w-joint_pos_w).Normalize(); //first base vector in plate where is join_pos, parent_point and child_point
@@ -86,8 +86,11 @@ namespace gazebo
         Vector3d parent_force=force_size*R2;
         Vector3d child_force=force_size*(child_point_l.Cross(joint_ax).Normalize());
 
-        parent_link->AddForceAtRelativePosition(parent_force,this->parent_point);//expect CoG at (0,0,0) of parent link
-        child_link->AddForceAtRelativePosition(child_force,this->child_point);//expect CoG at (0,0,0) of parent link 
+		const Vector3d& parent_CoG=parent_link->GetInertial()->CoG();
+		const Vector3d& child_CoG=child_link->GetInertial()->CoG();	
+
+        parent_link->AddForceAtRelativePosition(parent_force,this->parent_point-parent_CoG);//force offset is from CoG
+        child_link->AddForceAtRelativePosition(child_force,this->child_point-child_CoG);
 
 	    //debuging loop
 	    if(counter==DEBUG_CONST)
