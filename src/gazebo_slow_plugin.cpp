@@ -42,6 +42,8 @@ namespace gazebo
 		gzdbg << " SlowPlugin is attach to model[" << _model->GetName() << "]\n";
 
 		this->base_link = _model->GetChildLink(_sdf->GetElement("base_link")->Get<std::string>());
+        if(this->base_link== NULL)
+            gzdbg << "link not found \n";
 		this->coef = _sdf->GetElement("coef")->Get<double>();
 		
 		counter=0;

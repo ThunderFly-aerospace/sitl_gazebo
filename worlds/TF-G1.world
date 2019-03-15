@@ -16,10 +16,10 @@
 
   
    <!--single autogyro-->
-   <include>
+<!--   <include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>
+   </include>-->
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
    <!--<model name='hanging_autogyro'>
@@ -49,6 +49,66 @@
 			  <coef>5</coef>
 		</plugin>
    </model>-->
+
+   <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
+   <model name='hanging_test'>
+	   <model name='box'>
+		  <pose> 0 0 3 0 0 0 </pose>
+		  <static>1</static>
+		  <link name='link'>
+		     <visual name='visual'>
+		        <geometry>
+		           <box>
+            	      <size>0.1 0.1 0.1</size>
+          	       </box>
+		        </geometry>
+		     </visual>
+		  </link>
+		</model>	
+	   <model name='boxx'>
+		  <pose> 0.5 0 2.5 0 0 0 </pose>
+		  <link name='linkk'>
+		     <visual name='visual'>
+		        <geometry>
+		           <box>
+            	      <size>0.1 0.1 0.1</size>
+          	       </box>
+		        </geometry>
+		     </visual>
+		     <inertial>
+            	<pose>0 0 0.0 0 0 0</pose>
+            	<mass>1</mass>
+                 <inertia>
+                 	 <ixx>0.1</ixx>
+                 	 <ixy>0</ixy>
+                  	 <ixz>0</ixz>
+                  	 <iyy>0.1</iyy>
+                  	 <iyz>0</iyz>
+                  	 <izz>0.1</izz>
+                 </inertia>
+            </inertial>
+		  </link>
+		  <!--  <plugin name="slow" filename="libgazebo_slow_plugin.so">
+			      <base_link>linkk</base_link>
+			      <coef>5</coef>
+		    </plugin>-->
+		</model>	
+	 	<joint name='hang_joint' type='revolute'>
+		   <parent>box::link</parent>
+		   <child>boxx::linkk</child>
+           <pose>-0.5 0 0 0 0 0</pose>
+           <axis>
+            <xyz>0 1 0</xyz>
+           </axis>
+		</joint>
+		<plugin name="spring" filename="libgazebo_joint_spring_plugin.so">
+                  <joint>hang_joint</joint>
+                  <parentPoint>0 0 0</parentPoint>
+                  <childPoint>0 0 0</childPoint>
+                  <zero>1.57</zero>
+                  <k>10</k>
+		</plugin>
+   </model>
  
    <!-- autogyro on moving mox -->
    <!--<model name='moving_box'>
