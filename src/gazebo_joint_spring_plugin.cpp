@@ -7,7 +7,6 @@
 #include <cmath>
 
 #define DEBUG_CONST 100
-#define SLOW_CONST 0.1
 
 
 using namespace ignition::math;

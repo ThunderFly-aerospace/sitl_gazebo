@@ -103,10 +103,10 @@
 		</joint>
 		<plugin name="spring" filename="libgazebo_joint_spring_plugin.so">
                   <joint>hang_joint</joint>
-                  <parentPoint>0 0 0</parentPoint>
-                  <childPoint>0 0 0</childPoint>
-                  <zero>1.57</zero>
-                  <k>10</k>
+                  <parentPoint>0.5 0 -0.5</parentPoint>
+                  <childPoint>-1 0 0</childPoint>
+                  <zero>3.1415</zero>
+                  <k>100</k>
 		</plugin>
    </model>
  
