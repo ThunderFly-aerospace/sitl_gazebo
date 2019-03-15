@@ -626,18 +626,25 @@
       <axis>
         <xyz>0.94 -0.35 0</xyz>
         <limit>          
-          <lower>0.00</lower>
-          <upper>0.20</upper>
+          <lower>0.10</lower>
+          <upper>0.75</upper>
         </limit>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
+	<plugin name="left_spring" filename="libgazebo_joint_spring_plugin.so">
+          <joint>flap_left_joint</joint>
+          <parentPoint>0 0.1 0</parentPoint> <!--autor sám neví zda tohle může být dobře -->
+          <childPoint>0 -0.4 0</childPoint>
+          <zero>0.0</zero>
+          <k>1000</k>
+	</plugin>
 
     <link name='left-bladelink'>
       <pose><%= rotor_x%> <%= rotor_y+0.5%> <%= rotor_z%> 0 0 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.5</mass>
+        <mass>0.1</mass>
         <inertia>
           <ixx>1e-03</ixx>
           <ixy>0</ixy>
@@ -679,23 +686,26 @@
       <axis>
         <xyz>-0.94 0.35 0</xyz>
         <limit>          
-          <lower>0.00</lower>
-          <upper>0.20</upper>
+          <lower>0.10</lower>
+          <upper>0.75</upper>
         </limit>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
-      <physics>
-           <ode>
-                <implicit_spring_damper> true </implicit_spring_damper>
-           </ode>
-      </physics>
     </joint>
+
+	<plugin name="right_spring" filename="libgazebo_joint_spring_plugin.so">
+              <joint>flap_right_joint</joint>
+              <parentPoint>0 -0.1 0</parentPoint> <!--autor sám neví zda tohle může být dobře -->
+              <childPoint>0 0.4 0</childPoint>
+              <zero>0.0</zero>
+              <k>1000</k>
+	</plugin>
 
     <link name='right-bladelink'>
       <pose><%= rotor_x%> <%= rotor_y-0.5%> <%= rotor_z%> 0 0 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.5</mass>
+        <mass>0.1</mass>
         <inertia>
           <ixx>1e-03</ixx>
           <ixy>0</ixy>

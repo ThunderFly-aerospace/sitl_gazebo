@@ -16,10 +16,10 @@
 
   
    <!--single autogyro-->
-<!--   <include>
+   <include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>-->
+   </include>
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
    <!--<model name='hanging_autogyro'>
@@ -51,7 +51,7 @@
    </model>-->
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
-   <model name='hanging_test'>
+<!--   <model name='hanging_test'>
 	   <model name='box'>
 		  <pose> 0 0 3 0 0 0 </pose>
 		  <static>1</static>
@@ -88,10 +88,10 @@
                  </inertia>
             </inertial>
 		  </link>
-		  <!--  <plugin name="slow" filename="libgazebo_slow_plugin.so">
+		  <plugin name="slow" filename="libgazebo_slow_plugin.so">
 			      <base_link>linkk</base_link>
 			      <coef>5</coef>
-		    </plugin>-->
+		    </plugin>
 		</model>	
 	 	<joint name='hang_joint' type='revolute'>
 		   <parent>box::link</parent>
@@ -108,7 +108,7 @@
                   <zero>1.57</zero>
                   <k>10</k>
 		</plugin>
-   </model>
+   </model>-->
  
    <!-- autogyro on moving mox -->
    <!--<model name='moving_box'>
