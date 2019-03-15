@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-#define DEBUG_CONST 500
+#define DEBUG_CONST 10
 #define SLOW_CONST 0.1
 
 
@@ -72,11 +72,15 @@ namespace gazebo
         //vector to parent is set as R1 ax, coordinates of child_point vector need to be computed
         Vector3d child_point_l=child_point_w-joint_pos_w;
         
-        //double ch_x=child_point_l.Dot(R1);
-        //double ch_y=child_point_l.Dot(R2);
+        double ch_x=child_point_l.Dot(R1);
+        double ch_y=child_point_l.Dot(R2);
         
-        //double diff=this->zero_angle-atan2(ch_y,ch_x);
-        double diff=this->zero_angle-this->joint->Position();
+		double diff=atan2(ch_y,ch_x)-this->zero_angle;
+		if(diff<-3.1415926)
+			diff+=6.283;
+		if(diff>3.1415926)
+			diff-=6.283;
+
         double force_size=child_point_l.Length()*diff*this->k;
 
         Vector3d parent_force=force_size*R2;
@@ -88,7 +92,7 @@ namespace gazebo
 	    //debuging loop
 	    if(counter==DEBUG_CONST)
 	    {             
-           gzdbg << "Angle: " << this->joint->Position() << "\n";
+           gzdbg << "Angle: " << diff << "\n";
            gzdbg << "parent force: "<< parent_force <<"\n";
            gzdbg << "child force: "<< child_force <<"\n";
 	    }
