@@ -1,0 +1,51 @@
+<sdf version='1.5'>
+  <model name='wheel'>
+   <pose>0 0 0.2 0 0 0</pose>
+    <link name="wheel_link">
+      <pose> 0 0 0 0 0 0</pose> 
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.00001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00001</iyy>
+          <iyz>0</iyz>
+          <izz>0.00001</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+            <cylinder>
+              <radius>.05</radius>
+              <length>.025</length>
+            </cylinder>
+        </geometry>
+        <max_contacts>1</max_contacts>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <min_depth>0.001</min_depth>
+              <kp>1e6</kp>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      <visual name="wheel_visual">
+        <geometry>
+            <cylinder>
+              <radius>.05</radius>
+              <length>.025</length>
+            </cylinder>
+          </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
