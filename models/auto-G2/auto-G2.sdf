@@ -6,15 +6,15 @@
     <link name='base_link'>
       <pose>0 0 0 0 0 0</pose>
       <inertial>
-        <pose>0.05 0 0.05 0 0 0</pose>
-        <mass>4.9</mass>
+        <pose>0.05 0 0 0 0 0</pose>
+        <mass>0.643</mass>
         <inertia>
-          <ixx>1</ixx>
+          <ixx>0.001071666666666667</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>1</iyy>
+          <iyy>0.001071666666666667</iyy>
           <iyz>0</iyz>
-          <izz>1</izz>
+          <izz>0.001071666666666667</izz>
         </inertia>
       </inertial>
       <collision name='base_link_collision'>
@@ -22,7 +22,7 @@
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.3 0.2 0.2</size>
+            <size>0.1 0.1 0.1</size>
           </box>
         </geometry>
         <surface>
@@ -40,25 +40,46 @@
           </contact>
         </surface>
       </collision>
-
       <visual name='base_link_visual'>
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.3 0.2 0.2</size>
+            <size>0.1 0.1 0.1</size>
           </box>
         </geometry>
       </visual>
+
+     <!--ocas - visual-->
+     <visual name='tail_connection'>
+        <pose>-0.25 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>-0.5 0.01 0.01 </size>
+          </box>
+        </geometry>
+     </visual>
+     <visual name='tail_elevator'>
+        <pose>-0.55 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.2 0.01 </size>
+          </box>
+        </geometry>
+     </visual>
+     <visual name='tail_rudler'>
+        <pose>-0.55 0 0.05 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.01 0.1 </size>
+          </box>
+        </geometry>
+     </visual>
+
+
       <self_collide>0</self_collide>
-       <visual name='center_visual'>
-         <pose>0 0 0 0 0 0</pose>
-         <geometry>
-           <sphere>
-             <radius>0.02</radius>
-           </sphere>
-         </geometry>
-       </visual>
     </link>
+
+
     <link name='imu_link'>
       <pose>0 0 0 0 0 0</pose>
       <inertial>
@@ -95,19 +116,19 @@
 
 <!--==================================================WHEELS================================================================-->
 	<include>
-          <uri>model://autogyro/wheel</uri>
+          <uri>model://auto-G2/wheel</uri>
 		  <name>center_front_wheel</name>
           <pose> 0.5 0.0 -0.095 1.5707 1.5707</pose> 
     </include>
 
 	<include>
-          <uri>model://autogyro/wheel</uri>
+          <uri>model://auto-G2/wheel</uri>
 		  <name>left_rear_wheel</name>
           <pose> -0.22 0.5 -0.095 1.5707 1.5707</pose>  
     </include>
 
 	<include>
-          <uri>model://autogyro/wheel</uri>
+          <uri>model://auto-G2/wheel</uri>
 		  <name>right_rear_wheel</name>
           <pose> -0.22 -0.5 -0.095 1.5707 1.5707</pose>  
     </include>
@@ -130,8 +151,6 @@
         </ode>
       </physics>
     </joint>
-
-
 
     <joint name="left_rear_wheel_joint" type="revolute">
       <pose>0 0 0 0 0 0 </pose>
@@ -171,11 +190,11 @@
       </physics>
     </joint>
 
-<!--=================================================== OCAS ===================================================================-->
+<!--=================================================== TAIL ===================================================================-->
 
 
-     <link name="left_rudder">
-      <pose>-0.744 0.15 0.07 0 0 0 </pose>
+    <link name="rudder">
+      <pose> -0.61 0 0.05 0 0 0 </pose>
       <inertial>
         <mass>0.006</mass>
         <inertia>
@@ -190,20 +209,27 @@
        <visual name="left_rudder_visual">
         <geometry>
           <box>
-            <size>0.05 0.01 0.09</size>
+            <size>0.010000000000000002 0.01 0.1</size>
           </box>
         </geometry>
-        <material>
-          <script>
-            <name>Gazebo/Purple</name>
-            <uri>__default__</uri>
-          </script>
-        </material>
       </visual>
     </link>
 
-    <link name="right_rudder">
-      <pose>-0.744 -0.15 0.07 0 0 0 </pose>
+   <joint name="rudder_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rudder</child>
+      <pose>0.010000000000000002 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.53</lower>
+          <upper>0.53</upper>
+        </limit>
+      </axis>
+    </joint>
+
+    <link name="elevator">
+      <pose> -0.61 0 0 0 0 0 </pose>
       <inertial>
         <mass>0.006</mass>
         <inertia>
@@ -215,58 +241,30 @@
           <izz>0.00001</izz>
         </inertia>
       </inertial>
-       <visual name="right_rudder_visual">
+       <visual name="elev_visual">
         <geometry>
           <box>
-            <size>0.05 0.01 0.09</size>
+            <size>0.010000000000000002 0.2 0.01 </size>
           </box>
         </geometry>
       </visual>
     </link>
 
-    <joint name="left_rudder_joint" type="revolute">
+   <joint name="elev_joint" type="revolute">
       <parent>base_link</parent>
-      <child>left_rudder</child>
-      <pose>0.025 0 0 0 0 0</pose>
+      <child>elevator</child>
+      <pose>0.010000000000000002 0 0 0 0 0</pose>
       <axis>
-        <xyz>0 0 1</xyz>
+        <xyz>0 1 0</xyz>
         <limit>
           <lower>-0.53</lower>
           <upper>0.53</upper>
         </limit>
-        <dynamics>
-          <damping>1.000</damping>
-        </dynamics>
       </axis>
-      <physics>
-        <ode>
-          <implicit_spring_damper>1</implicit_spring_damper>
-        </ode>
-      </physics>
-    </joint>
-    <joint name="right_rudder_joint" type="revolute">
-      <parent>base_link</parent>
-      <child>right_rudder</child>
-      <pose>0.025 0 0 0 0 0</pose>
-      <axis>
-        <xyz>0 0 1</xyz>
-        <limit>
-          <lower>-0.53</lower>
-          <upper>0.53</upper>
-        </limit>
-        <dynamics>
-          <damping>1.000</damping>
-        </dynamics>
-      </axis>
-      <physics>
-        <ode>
-          <implicit_spring_damper>1</implicit_spring_damper>
-        </ode>
-      </physics>
     </joint>
 
-    <plugin name="elevator" filename="libLiftDragPlugin.so">
-      <a0>-0.2</a0>
+    <plugin name="elevator_plugin" filename="libLiftDragPlugin.so">
+      <a0>0.0</a0>
       <cla>4.752798721</cla>
       <cda>0.6417112299</cda>
       <cma>-1.8</cma>
@@ -274,34 +272,17 @@
       <cla_stall>-3.85</cla_stall>
       <cda_stall>-0.9233984055</cda_stall>
       <cma_stall>0</cma_stall>
-      <cp>-0.8 0 0</cp>
-      <area>0.06</area>
+      <cp>-0.55 0 0 %></cp>
+      <area>0.020000000000000004</area>
       <air_density>1.2041</air_density>
       <forward>1 0 0</forward>
       <upward>0 0 1</upward>
       <link_name>base_link</link_name>
-    </plugin>
-    <plugin name="leftrudder" filename="libLiftDragPlugin.so">
-      <a0>0.0</a0>
-      <cla>4.752798721</cla>
-      <cda>0.6417112299</cda>
-      <cma>-1.8</cma>
-      <alpha_stall>0.3391428111</alpha_stall>
-      <cla_stall>-3.85</cla_stall>
-      <cda_stall>-0.9233984055</cda_stall>
-      <cma_stall>0</cma_stall>
-      <cp>-0.8 -0.15 0.00</cp>
-      <area>0.01</area>
-      <air_density>1.2041</air_density>
-      <forward>1 0 0</forward>
-      <upward>0 -1 0</upward>
-      <link_name>base_link</link_name>
-      <control_joint_name>
-        left_rudder_joint
-      </control_joint_name>
+      <control_joint_name>elev_joint</control_joint_name>
       <control_joint_rad_to_cl>-4.0</control_joint_rad_to_cl>
     </plugin>
-    <plugin name="rightrudder" filename="libLiftDragPlugin.so">
+
+    <plugin name="rightrudder" filename="libLiftDragPlugin.so"><!--NO RUDDLER CONTORL-->
       <a0>0.0</a0>
       <cla>4.752798721</cla>
       <cda>0.6417112299</cda>
@@ -310,16 +291,16 @@
       <cla_stall>-3.85</cla_stall>
       <cda_stall>-0.9233984055</cda_stall>
       <cma_stall>0</cma_stall>
-      <cp>-0.8 -0.15 0.00</cp>
-      <area>0.01</area>
+      <cp>-0.55 0 0.05</cp>
+      <area>0.010000000000000002</area>
       <air_density>1.2041</air_density>
       <forward>1 0 0</forward>
       <upward>0 1 0</upward>
       <link_name>base_link</link_name>
-      <control_joint_name>
-        right_rudder_joint
+     <!-- <control_joint_name>
+        rudder_joint
       </control_joint_name>
-      <control_joint_rad_to_cl>4.0</control_joint_rad_to_cl>
+      <control_joint_rad_to_cl>4.0</control_joint_rad_to_cl>-->
     </plugin>
 
 
@@ -328,12 +309,13 @@
       <child>propeller</child>
       <parent>base_link</parent>
       <axis>
-        <xyz>0.99 0 -0.1</xyz>
+        <xyz>0.9986295347545738 0 -0.05233595624294383</xyz>
+        <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
 
     <link name='propeller'>
-      <pose>0.23 0 0.063 0 1.6714649789527254 0</pose>
+      <pose>0.25 0 0.04 0 1.6231562043547265 0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.01</mass>
@@ -350,7 +332,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1 </scale>
-            <uri>model://autogyro/meshes/iris_prop_ccw.dae</uri>
+            <uri>model://auto-G2/meshes/iris_prop_ccw.dae</uri>
           </mesh>
         </geometry>
         <material>
@@ -369,60 +351,23 @@
       <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
       <motorNumber>4</motorNumber>
       <base_link>base_link</base_link>
-      <force_pos>0.23 0 0.063</force_pos>
-      <force_dir>0.99 0 -0.1</force_dir>
+      <force_pos>0.25 0 0.04</force_pos>
+      <force_dir>0.9986295347545738 0 -0.05233595624294383</force_dir>
       <coef>0.01</coef>
     </plugin>
 
 
-    <!--<plugin name='propeller_motor' filename='libgazebo_motor_model.so'>
-      <robotNamespace></robotNamespace>
-      <jointName>propeller_joint</jointName>
-      <linkName>propeller</linkName>
-      <turningDirection>cw</turningDirection>
-      <timeConstantUp>0.0125</timeConstantUp>
-      <timeConstantDown>0.025</timeConstantDown>
-      <maxRotVelocity>3500</maxRotVelocity>
-      <motorConstant>8.54858e-03</motorConstant>
-      <momentConstant>0.01</momentConstant>
-      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
-      <motorNumber>0</motorNumber>
-      <rotorDragCoefficient>8.06428e-01</rotorDragCoefficient>
-      <rollingMomentCoefficient>1e-08</rollingMomentCoefficient>
-      <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
-      <rotorVelocitySlowdownSim>40</rotorVelocitySlowdownSim>
-    </plugin>-->
-<!--    <plugin name='propeller_motor' filename='libgazebo_motor_model.so'>
-      <robotNamespace></robotNamespace>
-      <jointName>propeller_joint</jointName>
-      <linkName>propeller</linkName>
-      <turningDirection>cw</turningDirection>
-      <timeConstantUp>0.0125</timeConstantUp>
-      <timeConstantDown>0.025</timeConstantDown>
-      <maxRotVelocity>9500</maxRotVelocity>
-      <motorConstant>8.54858e-05</motorConstant>
-      <momentConstant>0.001</momentConstant>
-      <commandSubTopic>/gazebo/command/motor_speed</commandSubTopic>
-      <motorNumber>4</motorNumber>
-      <rotorDragCoefficient>8.06428e-02</rotorDragCoefficient>
-      <rollingMomentCoefficient>1e-6</rollingMomentCoefficient>
-      <motorSpeedPubTopic>/motor_speed/0</motorSpeedPubTopic>
-      <rotorVelocitySlowdownSim>50</rotorVelocitySlowdownSim>
-    </plugin>-->
-
 <!--============================================================== ROTOR ================================================-->
 
-    <joint name='roll_dummyjoint' type='revolute'>
+    <joint name='roll_joint' type='revolute'>
       <child>roll-dummylink</child>
       <parent>base_link</parent>
       <pose>0 0 0 0 0 0</pose>
       <axis>
-        <xyz>1 0 0</xyz>
+        <xyz>0.984807753012208 0 0.17364817766693033</xyz>
         <limit>          
           <lower>-0.349</lower>
           <upper>0.349</upper>
-		 <!-- <lower>0.0</lower>
-          <upper>0.0</upper>-->
         </limit>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
@@ -435,118 +380,27 @@
     </joint>
 
     <link name='roll-dummylink'>
-      <pose>0.0 0.0 0.4 0 0 0</pose>
+      <pose>0.0 0.0 0.25 0 -0.17453292519943295 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.1</mass>
+        <mass>0.01</mass>
         <inertia>
-          <ixx>1e-2</ixx>
+          <ixx>1e-4</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>1e-2</iyy>
+          <iyy>1e-4</iyy>
           <iyz>0</iyz>
-          <izz>1e-2</izz>
-        </inertia>
-      </inertial>
-    </link>
-
-
-    <joint name='pitch_dummyjoint' type='revolute'>
-      <child>spin-dummylink</child>
-      <parent>roll-dummylink</parent>
-      <pose>0 0 0 0 0 0</pose>
-      <axis>
-        <xyz>0 1 0</xyz>
-        <limit>          
-          <lower>-0.349</lower>
-          <upper>0</upper>
-		  <!--<lower>-0.2</lower>
-          <upper>-0.2</upper>-->
-        </limit>
-        <use_parent_model_frame>1</use_parent_model_frame>
-      </axis>
-      <physics>
-        <ode>
-            <cfm>0.000000</cfm>
-            <erp>0.900000</erp>
-        </ode>
-      </physics>
-    </joint>
-
-   <!-- <link name='spin-dummylink'>
-      <pose>0.0 0.0 0.4 0 0 0</pose>
-	  <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>1</mass>
-        <inertia>
-          <ixx>1e-02</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-02</iyy>
-          <iyz>0</iyz>
-          <izz>1e-02</izz>
-        </inertia>
-      </inertial>
-      <visual name='visual'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.75</radius>
-            <length>0.02</length>
-          </cylinder>
-        </geometry>
-      </visual>
-      <collision name='base_link_collision'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.75</radius>
-            <length>0.02</length>
-          </cylinder>
-        </geometry>
-        <surface>
-          <friction>
-            <ode>
-              <mu>0.1</mu>
-              <mu2>0.1</mu2>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-    </link>
-
-   <plugin name="rotorblade" filename="libgazebo_rotor_blade_plugin.so">
-      <link>spin-dummylink</link>
-      <forward>1 0 0</forward>
-      <upward> 0 0 1 </upward>
-      <length> 1.5 </length>
-      <width> 1.5 </width>
-      <airDensity> 1.2041 </airDensity>
-      <elementCount>2</elementCount>
-   </plugin>-->
-
-   <link name='spin-dummylink'>
-      <pose>0.0 0.0 0.4 0 0 0</pose>
-	  <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.1</mass>
-        <inertia>
-          <ixx>1e-02</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-02</iyy>
-          <iyz>0</iyz>
-          <izz>1e-02</izz>
+          <izz>1e-4</izz>
         </inertia>
       </inertial>
     </link>
 
     <joint name='spin_dummyjoint' type='revolute'>
-      <child>flap-dummylink</child>
-      <parent>spin-dummylink</parent>
+      <child>rotor-center-link</child>
+      <parent>roll-dummylink</parent>
       <pose>0 0 0 0 0 0</pose>
       <axis>
-        <xyz>0 0 1</xyz>
+        <xyz> -0.17364817766693033 0 0.984807753012208</xyz>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
       <physics>
@@ -557,74 +411,86 @@
       </physics>
     </joint>
 
-    <plugin name="speed" filename="libgazebo_joint_speed_plugin.so">
+<!--    <plugin name="speed" filename="libgazebo_joint_speed_plugin.so">
       <joint>spin_dummyjoint</joint>
-    </plugin>
+    </plugin>-->
 
-    <link name='flap-dummylink'>
-      <pose>0.0 0.0 0.4 0 0 0</pose>
+    <link name='rotor-center-link'>
+      <pose>0.0 0.0 0.25 0 -0.17453292519943295 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.1</mass>
+        <mass>0.01</mass>
         <inertia>
-          <ixx>1e-02</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-02</iyy>
-          <iyz>0</iyz>
-          <izz>1e-02</izz>
-        </inertia>
-      </inertial>
-    </link>
-
-    <joint name='flap_left_joint' type='revolute'>
-      <child>left-bladelink</child>
-      <parent>flap-dummylink</parent>
-      <pose>0 -0.5 0 0 0 0</pose>
-      <axis>
-        <xyz>0.94 -0.35 0</xyz>
-        <limit>          
-          <lower>0.10</lower>
-          <upper>0.75</upper>
-        </limit>
-        <use_parent_model_frame>1</use_parent_model_frame>
-      </axis>
-    </joint>
-	<plugin name="left_spring" filename="libgazebo_joint_spring_plugin.so">
-          <joint>flap_left_joint</joint>
-          <parentPoint>0 0.1 0</parentPoint> <!--autor sám neví zda tohle může být dobře -->
-          <childPoint>0 -0.4 0</childPoint>
-          <zero>0.0</zero>
-          <k>1000</k>
-	</plugin>
-
-    <link name='left-bladelink'>
-      <pose>0.0 0.5 0.4 0 0 0</pose>
-	  <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.1</mass>
-        <inertia>
-          <ixx>1e-03</ixx>
+          <ixx>1e-04</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
           <iyy>1e-04</iyy>
           <iyz>0</iyz>
-          <izz>1e-03</izz>
+          <izz>1e-04</izz>
+        </inertia>
+      </inertial>
+     <visual name='rotor-center-visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.01</length>
+          </cylinder>
+        </geometry>
+     </visual>
+     <frame name='rotor-center-frame'>
+        <pose>0.0 0.0 0.25 0 -0.17453292519943295 0</pose>
+     </frame> 
+    </link>
+
+    <joint name='flap_left_joint' type='revolute'>
+      <child>left-bladelink</child>
+      <parent>rotor-center-link</parent>
+      <pose frame='rotor-center-frame'>0 -0.01 0 0 0 0</pose>
+      <axis>
+        <xyz>0.9781476007338057 0.9781476007338057 0</xyz>
+        <limit>          
+          <lower>0.10</lower>
+          <upper>0.75</upper>
+        </limit>
+      </axis>
+    </joint>
+
+	<!--<plugin name="left_spring" filename="libgazebo_joint_spring_plugin.so">
+          <joint>flap_left_joint</joint>
+          <parentPoint>0 0.1 0</parentPoint>
+          <childPoint>0 -0.4 0</childPoint>
+          <zero>0.0</zero>
+          <k>1000</k>
+	</plugin>-->
+
+    <link name='left-bladelink'>
+      <pose frame='rotor-center-frame'>0 -0.21000000000000002 0 0 0 0</pose>
+	  <inertial>
+        <pose>0 0 0 0 0.017453292519943295 0</pose>
+        <mass>0.04</mass>
+        <inertia>
+          <ixx>0.0005336666666666668</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>7.083333333333333e-06</iyy>
+          <iyz>0</iyz>
+          <izz>1.35e-05</izz>
         </inertia>
       </inertial>
 	  <visual name='visual'>
 		  <geometry>
 		       <box>
-          	      <size>0.05 1 0.02</size>
+          	      <size> 0.045 0.4 0.01</size>
                </box>
 		 </geometry>
 	 </visual>
      <collision name='link_collision'>
         <pose>0 0 0 0 0 0</pose>
         <geometry>
-          <box>
-            <size>0.05 0.9 0.02</size>
-          </box>
+	       <box>
+      	      <size> 0.045 0.4 0.01</size>
+           </box>
         </geometry>
         <surface>
           <friction>
@@ -637,7 +503,7 @@
       </collision>
     </link>
 
- 	<joint name='flap_right_joint' type='revolute'>
+<!-- 	<joint name='flap_right_joint' type='revolute'>
       <child>right-bladelink</child>
       <parent>flap-dummylink</parent>
       <pose>0 0.5 0 0 0 0</pose>
@@ -653,14 +519,14 @@
 
 	<plugin name="right_spring" filename="libgazebo_joint_spring_plugin.so">
               <joint>flap_right_joint</joint>
-              <parentPoint>0 -0.1 0</parentPoint> <!--autor sám neví zda tohle může být dobře -->
+              <parentPoint>0 -0.1 0</parentPoint>
               <childPoint>0 0.4 0</childPoint>
               <zero>0.0</zero>
               <k>1000</k>
 	</plugin>
 
     <link name='right-bladelink'>
-      <pose>0.0 -0.5 0.4 0 0 0</pose>
+      <pose>0.0 -0.5 0.25 0 0 0</pose>
 	  <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.1</mass>
@@ -716,7 +582,7 @@
       <width> 0.05 </width>
       <airDensity> 1.2041 </airDensity>
       <elementCount>10</elementCount>
-   </plugin>
+   </plugin>-->
    
 <!--========================================================= PX4Interface ================================================-->
 
@@ -761,6 +627,15 @@
       <zero_position_disarmed>0</zero_position_disarmed>
       <zero_position_armed>0</zero_position_armed>
       <joint_control_type>velocity</joint_control_type>
+      <!--<joint_control_pid>
+        <p>1</p>
+        <i>0</i>
+        <d>0.001</d>
+        <iMax>0</iMax>
+        <iMin>0</iMin>
+        <cmdMax>5</cmdMax>
+        <cmdMin>-1</cmdMin>
+      </joint_control_pid>-->
       <joint_name>propeller_joint</joint_name>
     </channel>
 
@@ -770,82 +645,59 @@
           <input_index>2</input_index>
           <input_offset>0</input_offset>
           <input_scaling>0.09</input_scaling>
-          <gztopic>/rotor_roll_cmd</gztopic>
           <zero_position_disarmed>0</zero_position_disarmed>
           <zero_position_armed>0</zero_position_armed>
           <joint_control_type>position</joint_control_type>
-          <joint_name>roll_dummyjoint</joint_name>
+          <joint_name>roll_joint</joint_name>
           <joint_control_pid>
-            <p>1000</p>
+            <p>1</p>
             <i>0</i>
-            <d>1</d>
+            <d>0.001</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
-            <cmdMax>100</cmdMax>
-            <cmdMin>-100</cmdMin>
+            <cmdMax>5</cmdMax>
+            <cmdMin>-5</cmdMin>
           </joint_control_pid>
         </channel>
 
-        <channel name="pitch_channel">
-          <input_index>3</input_index>
-          <input_offset>-0.5</input_offset>
-          <input_scaling>0.2</input_scaling>
-          <gztopic>/rotor_pitch_cmd</gztopic>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position</joint_control_type>
-          <joint_name>pitch_dummyjoint</joint_name>
-          <joint_control_pid>
-            <p>1000</p>
-            <i>0</i>
-            <d>1</d>
-            <iMax>0</iMax>
-            <iMin>0</iMin>
-            <cmdMax>100</cmdMax>
-            <cmdMin>-100</cmdMin>
-          </joint_control_pid>
-        </channel>
 
         <!-- ocas-->
-
-        <channel name="left_rudder_channel">
-          <input_index>0</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1</input_scaling>
+        <channel name="pitch_channel">
+          <input_index>3</input_index>
+          <input_offset>0.0</input_offset>
+          <input_scaling>0.2</input_scaling>
           <zero_position_disarmed>0</zero_position_disarmed>
           <zero_position_armed>0</zero_position_armed>
-		  <!--<joint_control_type>position_kinematic</joint_control_type>-->
           <joint_control_type>position</joint_control_type>
+          <joint_name>elev_joint</joint_name>
           <joint_control_pid>
-            <p>10</p>
+            <p>2</p>
             <i>0</i>
-            <d>0.05</d>
+            <d>0.001</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
-            <cmdMax>50</cmdMax>
-            <cmdMin>-50</cmdMin>
+            <cmdMax>5</cmdMax>
+            <cmdMin>-5</cmdMin>
           </joint_control_pid>
-          <joint_name>left_rudder_joint</joint_name>
         </channel>
 
-        <channel name="right_rudder_channel">
-          <input_index>1</input_index>
+        <channel name="rudder_channel">
+          <input_index>0</input_index>
           <input_offset>0</input_offset>
-          <input_scaling>1</input_scaling>
+          <input_scaling>0.8</input_scaling>
           <zero_position_disarmed>0</zero_position_disarmed>
           <zero_position_armed>0</zero_position_armed>
-		 <!-- <joint_control_type>position_kinematic</joint_control_type>-->
           <joint_control_type>position</joint_control_type>
           <joint_control_pid>
-            <p>10</p>
+            <p>1</p>
             <i>0</i>
-            <d>0.05</d>
+            <d>0.001</d>
             <iMax>0</iMax>
             <iMin>0</iMin>
-            <cmdMax>50</cmdMax>
-            <cmdMin>-50</cmdMin>
+            <cmdMax>5</cmdMax>
+            <cmdMin>-5</cmdMin>
           </joint_control_pid>
-          <joint_name>right_rudder_joint</joint_name>
+          <joint_name>rudder_joint</joint_name>
         </channel>
 
       </control_channels>

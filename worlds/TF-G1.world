@@ -16,10 +16,14 @@
 
   
    <!--single autogyro-->
-   <include>
+<!--   <include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>
+   </include>-->
+<!--   <include>
+      <uri>model://auto-G2</uri>
+      <pose>0 0 0.2 0 0 0</pose>
+   </include>-->
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
    <!--<model name='hanging_autogyro'>
@@ -50,12 +54,13 @@
 		</plugin>
    </model>-->
 
-   <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
-<!--   <model name='hanging_test'>
+   <!-- boxtest - joint to umísťuje do souřadnice childu -->
+   <!--<model name='box_test'>-->
 	   <model name='box'>
-		  <pose> 0 0 3 0 0 0 </pose>
+		  <pose> 0 0 0 0 0 0 </pose>
 		  <static>1</static>
 		  <link name='link'>
+             <pose> 0 0 2 0 0 0 </pose>
 		     <visual name='visual'>
 		        <geometry>
 		           <box>
@@ -63,10 +68,25 @@
           	       </box>
 		        </geometry>
 		     </visual>
+            <frame name="pokusny_frame">
+                <pose>0 0 0 0 0 0</pose>
+            </frame>
 		  </link>
-		</model>	
-	   <model name='boxx'>
-		  <pose> 0.5 0 2.5 0 0 0 </pose>
+
+          <link name='linkkk'>
+             <pose frame="pokusny_frame"> 0.5 0 0 0 0 0 </pose>
+		     <visual name='visual'>
+		        <geometry>
+		           <box>
+            	      <size>0.1 0.1 0.1</size>
+          	       </box>
+		        </geometry>
+		     </visual>
+         </link>
+	</model>	
+
+
+	 <!--  <model name='boxx'>
 		  <link name='linkk'>
 		     <visual name='visual'>
 		        <geometry>
