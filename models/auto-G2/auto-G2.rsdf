@@ -3,7 +3,7 @@
   # Autogyro parameters
 
   #body mass and its position - approximation of CenterOfMass 
-  body_mass   = 0.643
+  body_mass   = 0.2
   body_size_x=0.1
   body_size_y=0.1
   body_size_z=0.1
@@ -34,7 +34,7 @@
   rotor_y = 0.0
   rotor_z = 0.25
 
-  rotor_pitch_angle = 10
+  rotor_pitch_angle = 12
   
   blade_length = 0.4
   blade_width = 0.045
@@ -42,7 +42,7 @@
   blade_weight = 0.040
   blade_flap_offset = 0.01
   blade_flap_delta_angle=12
-  blade_zero_collective_angle=-3
+  blade_zero_collective_angle=-2
 
   #wheels position
   front_x = 0.5
@@ -127,11 +127,12 @@
           </box>
         </geometry>
      </visual>
-
-
-      <self_collide>0</self_collide>
+     <self_collide>0</self_collide>
     </link>
-
+    <plugin name="slow" filename="libgazebo_slow_plugin.so">
+	      <base_link>base_link</base_link>
+	      <coef>3</coef>
+    </plugin>
 
     <link name='imu_link'>
       <pose>0 0 0 0 0 0</pose>
@@ -427,7 +428,7 @@
       <physics>
         <ode>
             <cfm>0.000000</cfm>
-            <erp>0.90000</erp>
+            <erp>0.95000</erp>
         </ode>
       </physics>
     </joint>
@@ -459,7 +460,7 @@
       <physics>
         <ode>
             <cfm>0.000000</cfm>
-            <erp>0.900000</erp>
+            <erp>0.950000</erp>
         </ode>
       </physics>
     </joint>
@@ -502,13 +503,13 @@
 		<!--<use_parent_model_frame>1</use_parent_model_frame>-->
         <limit>          
           <lower>0.00</lower>
-          <upper>0.70</upper>
+          <upper>0.35</upper>
         </limit>
       </axis>
       <physics>
         <ode>
             <cfm>0.000000</cfm>
-            <erp>0.900000</erp>
+            <erp>0.950000</erp>
         </ode>
       </physics>
     </joint>
@@ -568,13 +569,13 @@
 		<!--<use_parent_model_frame>1</use_parent_model_frame>-->
         <limit>          
           <lower>0.00</lower>
-          <upper>0.70</upper>
+          <upper>0.35</upper>
         </limit>
       </axis>
       <physics>
         <ode>
             <cfm>0.000000</cfm>
-            <erp>0.900000</erp>
+            <erp>0.950000</erp>
         </ode>
       </physics>
     </joint>
@@ -632,7 +633,7 @@
       <length> <%=blade_length%> </length>
       <width> <%=blade_width%> </width>
       <airDensity> 1.2041 </airDensity>
-      <elementCount>10</elementCount>
+      <elementCount>50</elementCount>
    </plugin>
 
    <plugin name="right_rotorblade" filename="libgazebo_rotor_blade_plugin.so">
@@ -642,7 +643,7 @@
       <length> <%=blade_length%> </length>
       <width> <%=blade_width%> </width>
       <airDensity> 1.2041 </airDensity>
-      <elementCount>10</elementCount>
+      <elementCount>50</elementCount>
    </plugin>
    
 <!--========================================================= PX4Interface ================================================-->
