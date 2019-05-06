@@ -16,14 +16,14 @@
 
   
    <!--single autogyro-->
-   <include>
+   <!--<include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>
-   <!--<include>
+   </include>-->
+   <include>
       <uri>model://auto-G2</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>-->
+   </include>
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
    <!--<model name='hanging_autogyro'>

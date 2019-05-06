@@ -7,14 +7,14 @@
       <pose>0 0 0 0 0 0</pose>
       <inertial>
         <pose>0.05 0 0 0 0 0</pose>
-        <mass>0.2</mass>
+        <mass>200</mass>
         <inertia>
-          <ixx>0.0003333333333333334</ixx>
+          <ixx>4.640000000000001</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.0003333333333333334</iyy>
+          <iyy>4.640000000000001</iyy>
           <iyz>0</iyz>
-          <izz>0.0003333333333333334</izz>
+          <izz>8.0</izz>
         </inertia>
       </inertial>
       <collision name='base_link_collision'>
@@ -22,7 +22,7 @@
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.1 0.1 0.1</size>
+            <size>0.5 0.5 0.2</size>
           </box>
         </geometry>
         <surface>
@@ -44,13 +44,13 @@
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.1 0.1 0.1</size>
+            <size>0.5 0.5 0.2</size>
           </box>
         </geometry>
       </visual>
 
      <!--ocas - visual-->
-     <visual name='tail_connection'>
+    <!-- <visual name='tail_connection'>
         <pose>-0.25 0 0 0 0 0</pose>
         <geometry>
           <box>
@@ -73,9 +73,34 @@
             <size>0.1 0.01 0.1 </size>
           </box>
         </geometry>
-     </visual>
+     </visual>-->
+
+	<!-- rotor !-->
+	<visual name='leftBlade'>
+		  <geometry>
+		       <box>
+          	      <size> 0.045 0.4 0.01</size>
+               </box>
+		 </geometry>
+	 </visual>
+	<visual name='rightBlade'>
+		  <geometry>
+		       <box>
+          	      <size> 0.045 0.4 0.01</size>
+               </box>
+		 </geometry>
+	 </visual>
      <self_collide>0</self_collide>
     </link>
+
+	<plugin name="rotor plugin" filename="libgazebo_rotor_plugin.so">
+		<base_link>base_link</base_link>
+		<rotor_pos>0.0 0.0 0.25</rotor_pos><!-- offset from base_link-->
+		<blade_length>0.4</blade_length>
+		<left_blade_visual>leftBlade</left_blade_visual>
+		<right_blade_visual>rightBlade</right_blade_visual>
+	</plugin>
+
     <plugin name="slow" filename="libgazebo_slow_plugin.so">
 	      <base_link>base_link</base_link>
 	      <coef>3</coef>
@@ -116,7 +141,7 @@
     </joint>
 
 <!--==================================================WHEELS================================================================-->
-	<include>
+<!--	<include>
           <uri>model://auto-G2/wheel</uri>
 		  <name>center_front_wheel</name>
           <pose> 0.5 0.0 -0.095 1.5707 1.5707</pose> 
@@ -144,7 +169,6 @@
       </axis>
       <physics>
         <ode>
-          <!--<cfm_damping>1</cfm_damping>-->
           <limit>
             <cfm>0.000000</cfm>
             <erp>0.800000</erp>
@@ -163,7 +187,6 @@
       </axis>
       <physics>
         <ode>
-          <!--<cfm_damping>1</cfm_damping>-->
           <limit>
             <cfm>0.000000</cfm>
             <erp>0.800000</erp>
@@ -182,7 +205,6 @@
       </axis>
       <physics>
         <ode>
-          <!--<cfm_damping>1</cfm_damping>-->
           <limit>
             <cfm>0.000000</cfm>
             <erp>0.800000</erp>
@@ -190,11 +212,11 @@
         </ode>
       </physics>
     </joint>
-
+-->
 <!--=================================================== TAIL ===================================================================-->
 
 
-    <link name="rudder">
+<!--    <link name="rudder">
       <pose> -0.61 0 0.05 0 0 0 </pose>
       <inertial>
         <mass>0.006</mass>
@@ -283,7 +305,7 @@
       <control_joint_rad_to_cl>-4.0</control_joint_rad_to_cl>
     </plugin>
 
-    <plugin name="rightrudder" filename="libLiftDragPlugin.so"><!--NO RUDDLER CONTORL-->
+    <plugin name="rightrudder" filename="libLiftDragPlugin.so">
       <a0>0.0</a0>
       <cla>4.752798721</cla>
       <cda>0.6417112299</cda>
@@ -302,11 +324,11 @@
         rudder_joint
       </control_joint_name>
       <control_joint_rad_to_cl>4.0</control_joint_rad_to_cl>-->
-    </plugin>
+   <!-- </plugin>-->
 
 
 <!--============================================================== VRTULE ==================================================-->
-    <joint name='propeller_joint' type='revolute'>
+ <!--   <joint name='propeller_joint' type='revolute'>
       <child>propeller</child>
       <parent>base_link</parent>
       <axis>
@@ -355,12 +377,12 @@
       <force_pos>0.25 0 0.04</force_pos>
       <force_dir>0.9986295347545738 0 -0.05233595624294383</force_dir>
       <coef>0.01</coef>
-    </plugin>
+    </plugin>-->
 
 
 <!--============================================================== ROTOR ================================================-->
 
-    <joint name='roll_joint' type='revolute'>
+<!--    <joint name='roll_joint' type='revolute'>
       <child>roll-dummylink</child>
       <parent>base_link</parent>
       <pose>0 0 0 0 0 0</pose>
@@ -444,10 +466,9 @@
     <joint name='flap_right_joint' type='revolute'>
       <child>right-bladelink</child>
       <parent>rotor-center-link</parent>
-      <pose>0 0.2 0 0 0 0</pose>-->
+      <pose>0 0.2 0 0 0 0</pose>
       <axis>
         <xyz>-0.9781476007338057 0.20791169081775931 0</xyz>
-		<!--<use_parent_model_frame>1</use_parent_model_frame>-->
         <limit>          
           <lower>0.00</lower>
           <upper>0.35</upper>
@@ -459,7 +480,7 @@
             <erp>0.950000</erp>
         </ode>
       </physics>
-    </joint>
+    </joint>-->
 
 	<!--<plugin name="left_spring" filename="libgazebo_joint_spring_plugin.so">
           <joint>flap_left_joint</joint>
@@ -469,7 +490,7 @@
           <k>1000</k>
 	</plugin>-->
 
-    <link name='right-bladelink'>
+  <!--  <link name='right-bladelink'>
       <pose>0.0 -0.21000000000000002 0.25 0 -0.17453292519943295 0</pose>
 	  <inertial> 
         <mass>0.04</mass>
@@ -510,10 +531,9 @@
     <joint name='flap_left_joint' type='revolute'>
       <child>left-bladelink</child>
       <parent>rotor-center-link</parent>
-      <pose>0 0.2 0 0 0 0</pose>-->
+      <pose>0 0.2 0 0 0 0</pose>
       <axis>
         <xyz>-0.9781476007338057 0.20791169081775931 0</xyz>
-		<!--<use_parent_model_frame>1</use_parent_model_frame>-->
         <limit>          
           <lower>0.00</lower>
           <upper>0.35</upper>
@@ -525,7 +545,7 @@
             <erp>0.950000</erp>
         </ode>
       </physics>
-    </joint>
+    </joint>-->
 
 	<!--<plugin name="left_spring" filename="libgazebo_joint_spring_plugin.so">
           <joint>flap_left_joint</joint>
@@ -535,7 +555,7 @@
           <k>1000</k>
 	</plugin>-->
 
-    <link name='left-bladelink'>
+   <!-- <link name='left-bladelink'>
       <pose>0.0 0.21000000000000002 0.25 0 0.24434609527920614 3.141592653589793</pose>
 	  <inertial> 
         <mass>0.04</mass>
@@ -591,7 +611,7 @@
       <width> 0.045 </width>
       <airDensity> 1.2041 </airDensity>
       <elementCount>50</elementCount>
-   </plugin>
+   </plugin>-->
    
 <!--========================================================= PX4Interface ================================================-->
 
@@ -671,7 +691,7 @@
 
 
         <!-- ocas-->
-        <channel name="pitch_channel">
+  <!--      <channel name="pitch_channel">
           <input_index>3</input_index>
           <input_offset>0.0</input_offset>
           <input_scaling>0.2</input_scaling>
@@ -707,7 +727,7 @@
             <cmdMin>-5</cmdMin>
           </joint_control_pid>
           <joint_name>rudder_joint</joint_name>
-        </channel>
+        </channel>-->
 
       </control_channels>
     </plugin>
