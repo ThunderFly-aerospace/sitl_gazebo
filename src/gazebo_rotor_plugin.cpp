@@ -30,27 +30,29 @@ namespace gazebo
 		updateConnection->~Connection(); //??
 	}
 
-    virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
+    virtual void Load(physics::ModelPtr model, sdf::ElementPtr _sdf)
     {
       // Just output a message for now
-		gzdbg << " RotorPlugin is attach to model[" << _model->GetName() << "]\n";
+		gzdbg << " RotorPlugin is attach to model[" << model->GetName() << "]\n";
 
-		this->base_link = _model->GetChildLink(_sdf->GetElement("base_link")->Get<std::string>());
+		this->base_link = model->GetChildLink(_sdf->GetElement("base_link")->Get<std::string>());
         this->rotor_pos = _sdf->Get<Vector3d>("rotor_pos");
 		this->blade_length=_sdf->GetElement("blade_length")->Get<double>();
 		 
 		base_link->VisualId(_sdf->GetElement("left_blade_visual")->Get<std::string>(), this->leftBladeVisualID);
 		base_link->VisualId(_sdf->GetElement("right_blade_visual")->Get<std::string>(), this->rightBladeVisualID);
 		
-		this->world=_model->GetWorld();
+		this->world=model->GetWorld();
 
 		counter=0;
 		rotorAngle=0.0;
-		rotorOmega=2*PI;
+		rotorOmega=PI/2;
 		lastUpdateTime =0.0;
 
 	 	lbladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
 		rbladeDefaultPos=Vector3d(0.0, blade_length/2,0.0);
+
+		spinAxRotation=Quaterniond(Vector3d(0,0,1),0);
 
 		UpdateRotorVisualPos();
 
@@ -58,9 +60,17 @@ namespace gazebo
 			std::bind(&RotorPlugin::OnUpdate, this));
 
         //messaging
-     /*   node_handle_ = transport::NodePtr(new transport::Node());
-        node_handle_->Init("");
-        rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);*/
+		node_handle = transport::NodePtr(new transport::Node());
+		node_handle->Init(model->GetWorld()->Name());
+
+		std::string rollCmdTopic = "~/" + model->GetName() + "/rotor_roll_cmd";
+		std::string pitchCmdTopic = "~/" + model->GetName() + "/rotor_pitch_cmd";
+
+		// Subscribe to the topics, and register a callbacks
+		control_roll_sub = node_handle->Subscribe(rollCmdTopic, &RotorPlugin::OnRollCmdMsg, this);
+		control_pitch_sub = node_handle->Subscribe(pitchCmdTopic, &RotorPlugin::OnPitchCmdMsg, this);	
+
+		/*rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);*/
 
 	}
 
@@ -79,7 +89,17 @@ namespace gazebo
 			
 		rotorAngle+=timeStep*rotorOmega; //Euler integration of rotor angle
 
+
+		//update spinAxRotation by input
+		spinAxRotation=Quaterniond(Vector3d(1,0,0),roll)*
+					Quaterniond(Vector3d(0,1,0),pitch);
+						
+
 		UpdateRotorVisualPos();
+
+
+
+
 		/*const Vector3d & linVel=rotor_link->WorldLinearVel();
         if(linVel.Length()< SLOW_CONST)
         {
@@ -136,6 +156,8 @@ namespace gazebo
         	rotorfreq_pub_->Publish(msg);*/
 
 			gzdbg << timeStep <<std::endl;
+			gzdbg <<"R: "<< roll << std::endl;
+			gzdbg <<"P: "<< pitch << std::endl;
 		}
 
 	}
@@ -156,18 +178,39 @@ namespace gazebo
 		Vector3d rbladeDefaultPos;
 
 		//rotor state		
+		Quaterniond spinAxRotation;
 		double rotorAngle; 
 		double rotorOmega; //uhlova rychlost v radianech - zatím double 
 
+		//input
+		double roll;
+		double pitch;
+
+		//messaging
+		transport::NodePtr node_handle;
+  		transport::SubscriberPtr control_roll_sub;
+  		transport::SubscriberPtr control_pitch_sub;
+		
 
 		void UpdateRotorVisualPos()
 		{
-			Quaterniond rotorRot=Quaterniond(0.0, 0.0, rotorAngle);
 
-			base_link->SetVisualPose(leftBladeVisualID, Pose3d(rotor_pos+rotorRot*lbladeDefaultPos,rotorRot));
-			base_link->SetVisualPose(rightBladeVisualID, Pose3d(rotor_pos+rotorRot*rbladeDefaultPos,rotorRot));
+			Quaterniond rotorRot=spinAxRotation*Quaterniond(Vector3d(0,0,1), rotorAngle);
+
+			base_link->SetVisualPose(leftBladeVisualID, Pose3d(rotor_pos+rotorRot.RotateVector(lbladeDefaultPos),rotorRot));
+			base_link->SetVisualPose(rightBladeVisualID, Pose3d(rotor_pos+rotorRot.RotateVector(rbladeDefaultPos),rotorRot));
 		}
 
+
+		void OnRollCmdMsg(ConstAnyPtr &_msg)
+		{
+			roll = _msg->double_value();
+		}
+
+		void OnPitchCmdMsg(ConstAnyPtr &_msg)
+		{
+			pitch = _msg->double_value();
+		}
 
        /* double getCL(double alpha)
         {
