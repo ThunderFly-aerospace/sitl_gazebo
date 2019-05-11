@@ -150,6 +150,7 @@
 		<base_link>base_link</base_link>
 		<rotor_pos><%= rotor_x%> <%= rotor_y%> <%= rotor_z%></rotor_pos><!-- offset from base_link-->
 		<blade_length><%=blade_length%></blade_length>
+        <blade_delta><%=blade_flap_delta_angle%></blade_delta>
 		<left_blade_visual>leftBlade</left_blade_visual>
 		<right_blade_visual>rightBlade</right_blade_visual>
 	</plugin>

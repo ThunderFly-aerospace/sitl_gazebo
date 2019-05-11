@@ -11,6 +11,8 @@
 #define SLOW_CONST 0.1
 #define DEBUG_CONST 500
 #define PI 3.141592654
+#define ToDeg(a) ((a)/2.0/PI*360.0)
+#define ToRad(a) ((a)/360.0*2.0*PI)
 
 using namespace ignition::math;
 using namespace ignition::math::v4;
@@ -38,6 +40,7 @@ namespace gazebo
 		this->base_link = model->GetChildLink(_sdf->GetElement("base_link")->Get<std::string>());
         this->rotor_pos = _sdf->Get<Vector3d>("rotor_pos");
 		this->blade_length=_sdf->GetElement("blade_length")->Get<double>();
+        this->delta_angle=ToRad(_sdf->GetElement("blade_delta")->Get<double>());
 		 
 		base_link->VisualId(_sdf->GetElement("left_blade_visual")->Get<std::string>(), this->leftBladeVisualID);
 		base_link->VisualId(_sdf->GetElement("right_blade_visual")->Get<std::string>(), this->rightBladeVisualID);
@@ -47,12 +50,13 @@ namespace gazebo
 		counter=0;
 		rotorAngle=0.0;
 		rotorOmega=PI/2;
+        flaping_angle=ToRad(-15);
 		lastUpdateTime =0.0;
 
 	 	lbladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
 		rbladeDefaultPos=Vector3d(0.0, blade_length/2,0.0);
 
-		spinAxRotation=Quaterniond(Vector3d(0,0,1),0);
+		Rdisc=Quaterniond(Vector3d(0,0,1),0);
 
 		UpdateRotorVisualPos();
 
@@ -87,21 +91,47 @@ namespace gazebo
 		double timeStep=currentTime.Double() - this->lastUpdateTime.Double();
 		this->lastUpdateTime=currentTime;
 			
+
+
+        const Vector3d & rotorLinVel=base_link->WorldLinearVel(rotor_pos);
+//        const Vector3d base_pose=base_link->WorldPose().Pos();
+//        const Quaterniond base_rot=base_link->WorldPose().Rot();
+
+
+       
+        Quaterniond Rrot(Vector3d(0,0,1), rotorAngle);//otočení rotoru
+        Quaterniond Rblade=Rdisc*Rrot;//otočení rotoru na hlavě
+
+        //TADY CHYBY přidat úhel mezi osou rotace a osou hlavy později -- je otazka zda je natočený správně
+        Quaterniond RbladeTotal=Rblade*Quaterniond(Vector3d(0,1,0),getFlapCorectionAngle(flaping_angle)); //otočení listu včetně flaping úhlu
+
+        Vector3d omega=Rdisc*Vector3d(0,0,rotorOmega);
+
+		Vector3d forward=RbladeTotal*Vector3d(1,0,0);
+		Vector3d upward=RbladeTotal*Vector3d(0,0,1);
+        Vector3d wingCut=RbladeTotal*Vector3d(0,1,0);
+
+        double d=blade_length;
+        //for přes elementy
+        Vector3d vel=(Rblade*Vector3d(0,d,0)).Cross(omega)+rotorLinVel;        
+        Vector2d wingVel= Vector2d(vel.Dot(forward),vel.Dot(upward));
+        
+        double alpha=-std::atan2(wingVel.Y(),wingVel.X());//úhel náběhu
+
+
+
+
 		rotorAngle+=timeStep*rotorOmega; //Euler integration of rotor angle
 
-
-		//update spinAxRotation by input
-		spinAxRotation=Quaterniond(Vector3d(1,0,0),roll)*
-					Quaterniond(Vector3d(0,1,0),pitch);
+		//update rotationAxR by input
+		Rdisc=Quaterniond(Vector3d(1,0,0),roll)
+    					*Quaterniond(Vector3d(0,1,0),pitch);
 						
 
 		UpdateRotorVisualPos();
 
-
-
-
-		/*const Vector3d & linVel=rotor_link->WorldLinearVel();
-        if(linVel.Length()< SLOW_CONST)
+		
+     /*   if(linVel.Length()< SLOW_CONST)
         {
             if(counter==DEBUG_CONST)
                 gzdbg << "Too slow \n";
@@ -110,11 +140,7 @@ namespace gazebo
 
 		const Pose3d &  pose=rotor_link->WorldPose();
 
-		const Quaterniond rot=pose.Rot();
 
-		Vector3d forward=rot*Vector3d(1,0,0);
-		Vector3d upward=rot*Vector3d(0,0,1);
-        Vector3d wingCut=rot*Vector3d(0,1,0);
 
 		Vector2d wingVel= Vector2d(linVel.Dot(forward),linVel.Dot(upward));
         
@@ -158,6 +184,19 @@ namespace gazebo
 			gzdbg << timeStep <<std::endl;
 			gzdbg <<"R: "<< roll << std::endl;
 			gzdbg <<"P: "<< pitch << std::endl;
+            gzdbg <<"rychlost:" <<vel.Length()<<std::endl;
+
+            gzdbg << ToDeg(getFlapCorectionAngle(flaping_angle)) <<std::endl;
+
+            gzdbg << ToDeg(alpha)<<std::endl;
+
+
+            /*for(int u=-90;u<90;u++)
+            {
+                double urad=ToRad(u);
+                gzdbg<<u <<":" << ToDeg(getFlapCorectionAngle(urad)) << std::endl;
+            }*/
+
 		}
 
 	}
@@ -173,14 +212,16 @@ namespace gazebo
 		unsigned int leftBladeVisualID;
 		unsigned int rightBladeVisualID;
 		double blade_length;
+        double delta_angle;
 
 		Vector3d lbladeDefaultPos;
 		Vector3d rbladeDefaultPos;
 
 		//rotor state		
-		Quaterniond spinAxRotation;
+		Quaterniond Rdisc;
 		double rotorAngle; 
-		double rotorOmega; //uhlova rychlost v radianech - zatím double 
+		double rotorOmega; //uhlova rychlost v radianech
+        double flaping_angle;
 
 		//input
 		double roll;
@@ -195,7 +236,7 @@ namespace gazebo
 		void UpdateRotorVisualPos()
 		{
 
-			Quaterniond rotorRot=spinAxRotation*Quaterniond(Vector3d(0,0,1), rotorAngle);
+			Quaterniond rotorRot=Rdisc*Quaterniond(Vector3d(0,0,1), rotorAngle);
 
 			base_link->SetVisualPose(leftBladeVisualID, Pose3d(rotor_pos+rotorRot.RotateVector(lbladeDefaultPos),rotorRot));
 			base_link->SetVisualPose(rightBladeVisualID, Pose3d(rotor_pos+rotorRot.RotateVector(rbladeDefaultPos),rotorRot));
@@ -211,6 +252,13 @@ namespace gazebo
 		{
 			pitch = _msg->double_value();
 		}
+
+        double getFlapCorectionAngle(double flapping_angle)
+        {
+            //aproximujeme (flapping_angle)_osa_kolma_na_list = (flaping_angle)_osa_s_delta_uhlem
+            Vector3d rotated=Quaterniond(Vector3d(1,0,0),flapping_angle)*Vector3d(1,std::sin(this->delta_angle),0);
+            return std::atan2(rotated.Z(),1);   
+        }
 
        /* double getCL(double alpha)
         {

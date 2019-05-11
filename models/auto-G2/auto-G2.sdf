@@ -97,6 +97,7 @@
 		<base_link>base_link</base_link>
 		<rotor_pos>0.0 0.0 0.25</rotor_pos><!-- offset from base_link-->
 		<blade_length>0.4</blade_length>
+        <blade_delta>12</blade_delta>
 		<left_blade_visual>leftBlade</left_blade_visual>
 		<right_blade_visual>rightBlade</right_blade_visual>
 	</plugin>
