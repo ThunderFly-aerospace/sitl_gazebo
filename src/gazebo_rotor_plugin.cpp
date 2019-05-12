@@ -15,6 +15,12 @@
 #define ToDeg(a) ((a)/2.0/PI*360.0)
 #define ToRad(a) ((a)/360.0*2.0*PI)
 
+#define BLADE_COUNT 2
+
+#define EPSILON 0.0001
+#define FLAP_P 0.5
+#define FLAP_ITER 20
+
 using namespace ignition::math;
 using namespace ignition::math::v4;
 using namespace gazebo::physics;
@@ -55,12 +61,18 @@ namespace gazebo
 		this->world=model->GetWorld();
 
 		counter=0;
-		rotorAngle=0.0;
 		rotorOmega=PI/4;
-        flaping_angle=ToRad(0);
 		lastUpdateTime =0.0;
 
+        for(int b=0;b<BLADE_COUNT;b++)
+        {
+            rotorBladeAngle[b]=b*2.0*PI/BLADE_COUNT;
+            flaping_angle[b]=ToRad(0);
+        }
+            
+
         pitch=0.0;
+        roll=0.0;
 
 	 	lbladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
 		rbladeDefaultPos=Vector3d(0.0, blade_length/2,0.0);
@@ -106,76 +118,104 @@ namespace gazebo
 //        const Vector3d base_pose=base_link->WorldPose().Pos();
 //        const Quaterniond base_rot=base_link->WorldPose().Rot();
 
+      
+       Vector3d omega=Rdisc*Vector3d(0,0,rotorOmega);
 
-       
-        Quaterniond Rrot(Vector3d(0,0,1), rotorAngle);//otočení rotoru
-        Quaterniond Rblade=Rdisc*Rrot;//otočení rotoru na hlavě
+       for(int b=0;b<BLADE_COUNT;b++)
+       {
 
-        //TADY CHYBY přidat úhel mezi osou rotace a osou hlavy později 
-        Quaterniond RbladeTotal=Rblade*Quaterniond(Vector3d(0,1,0),getFlapCorectionAngle(flaping_angle)); //otočení listu včetně flaping úhlu
+            Quaterniond Rrot(Vector3d(0,0,1), rotorBladeAngle[b]);//otočení rotoru  
+            Quaterniond Rblade=Rdisc*Rrot;//otočení rotoru na hlavě     
 
-        Vector3d omega=Rdisc*Vector3d(0,0,rotorOmega);
-
-		Vector3d forward=RbladeTotal*Vector3d(1,0,0);
-		Vector3d upward=RbladeTotal*Vector3d(0,0,1);
-        Vector3d wingCut=RbladeTotal*Vector3d(0,1,0);
-
-        Vector3d bladeAirMoment(0,0,0);
-        for(int e=0;e<number_of_elements;e++)
-        {
-            double d=(e+0.5)/number_of_elements*blade_length;
-
-            Vector3d vel=(Rblade*Vector3d(0,d,0)).Cross(omega)+rotorLinVel;        
-            Vector2d airfoilVel= Vector2d(vel.Dot(forward),vel.Dot(upward));
-            
-            double airfoilVelocity=airfoilVel.Length();
-            /*if(airfoilVelocity< SLOW_CONST)
+            Vector3d bladeAirMoment(0,0,0);
+            for(int i=0;i<FLAP_ITER;i++)//několik iterací na nalezení flapping uhlu
             {
-                if(counter==DEBUG_CONST)
-                    gzdbg << "Element Too Slow \n";
-                continue;
-            }*/
+                //TADY CHYBY přidat úhel mezi osou rotace a osou hlavy později 
+                Quaterniond RbladeTotal=Rblade*Quaterniond(Vector3d(0,1,0),getFlapCorectionAngle(flaping_angle[b])); //otočení listu včetně flaping úhlu
 
-		    double alpha=-std::atan2(airfoilVel.Y(),airfoilVel.X());
-            double q=0.5*this->air_density*this->element_area*airfoilVelocity*airfoilVelocity;
-            double L=q*getCL(alpha);
-            double D=q*getCD(alpha);
+		        Vector3d forward=RbladeTotal*Vector3d(1,0,0);
+		        Vector3d upward=RbladeTotal*Vector3d(0,0,1);
+                Vector3d wingCut=RbladeTotal*Vector3d(0,1,0);
 
-            Vector3d liftDirection = vel.Cross(wingCut).Normalize();
-            Vector3d liftForce=L*liftDirection;//tohle je kolmo na vítr, ne na list
-            Vector3d dragDirection= -(vel-vel.Dot(wingCut)).Normalize();
-            Vector3d dragForce=D*dragDirection;//tohle je po větru
+                bladeAirMoment.Set(0,0,0);
 
-            bladeAirMoment+=(Rblade*Vector3d(0,d,0)).Cross(liftForce);
-            bladeAirMoment+=(Rblade*Vector3d(0,d,0)).Cross(dragForce);
+                for(int e=0;e<number_of_elements;e++)
+                {
+                    double d=(e+0.5)/number_of_elements*blade_length;
+
+                    Vector3d vel=(Rblade*Vector3d(0,d,0)).Cross(omega)+rotorLinVel;        
+                    Vector2d airfoilVel= Vector2d(vel.Dot(forward),vel.Dot(upward));
+                    
+                    double airfoilVelocity=airfoilVel.Length();
+                    /*if(airfoilVelocity< SLOW_CONST)
+                    {
+                        if(counter==DEBUG_CONST)
+                            gzdbg << "Element Too Slow \n";
+                        continue;
+                    }*/
+
+		            double alpha=-std::atan2(airfoilVel.Y(),airfoilVel.X());
+                    double q=0.5*this->air_density*this->element_area*airfoilVelocity*airfoilVelocity;
+                    double L=q*getCL(alpha);
+                    double D=q*getCD(alpha);
+
+                    Vector3d liftDirection = vel.Cross(wingCut).Normalize();
+                    Vector3d liftForce=L*liftDirection;//tohle je kolmo na vítr, ne na list
+                    Vector3d dragDirection= -(vel-vel.Dot(wingCut)).Normalize();
+                    Vector3d dragForce=D*dragDirection;//tohle je po větru
+
+                    bladeAirMoment+=(Rblade*Vector3d(0,d,0)).Cross(liftForce);
+                    bladeAirMoment+=(Rblade*Vector3d(0,d,0)).Cross(dragForce);
+                }
+
+                //rozklad momentů do flap a ax - do lokalních
+                Vector3d bladeLocalMoment =Rblade.RotateVectorReverse(bladeAirMoment);//zatím je bladeLocalMoment X složka, ale tady se pak projeví odklon osy od disku
+                
+                //výpočet flap_angle 
+                double weightMoment=blade_length/2.0*blade_weight*9.81; //tohle je blbě, když bude rotor nakloněný, zahraje si jen čast váhy
+                double odstrMomentMax=blade_weight*rotorOmega*rotorOmega*(blade_length/2.0)*(blade_length/2.0);//to je taky jen přibližné, zanedbávám cos u vzdalenosti od těžiště
+                double zlo=(bladeLocalMoment.X()-weightMoment)/odstrMomentMax;
+
+                double new_flap_angle=0;
+                if(zlo>=-0.25 && zlo<=0.25)//jen od 15 do 15 stupňů
+                {
+                    new_flap_angle=std::asin(zlo);
+                }
+                else
+                {
+                    if(zlo>0.25)
+                        new_flap_angle=ToRad(15);
+                    if(zlo<-0.25)
+                        new_flap_angle=ToRad(-15);
+                }
+
+                if(fabs(flaping_angle[b]-new_flap_angle)<EPSILON)
+                {
+                    if(counter==DEBUG_CONST)
+		                    gzdbg<<"flap iterations:" << i <<std::endl;       
+                    break;
+                }
+                else
+                {
+                    flaping_angle[b]+=FLAP_P*(new_flap_angle-flaping_angle[b]);
+                    if(i==(FLAP_ITER-1))
+                        gzdbg<<"Flapping angle not stabilized" <<std::endl;
+                }
+            }
+
+            Vector3d bladeLocalMoment=Rblade.RotateVectorReverse(bladeAirMoment);
+            if(counter==DEBUG_CONST)
+		    {
+                   gzdbg <<ToDeg(flaping_angle[b])<<std::endl;
+                   gzdbg <<bladeLocalMoment.Z()<<std::endl;
+            }
         }
 
-        //rozklad momentů do flap a ax - do lokalních
-        Vector3d discLocalMoment=Rblade.RotateVectorReverse(bladeAirMoment);//zatím je flapMoment X složka,
-                                                                            // ale tady se pak projeví odklon osy od disku
-        
-        //výpočet flap_angle ?? =>přímý výpočet by mohl oscilovat po každém kroku - několik iterací pro výpočet flap_angle???
-        double weightMoment=blade_length/2.0*blade_weight*9.81;
-        double odstrMomentMax=blade_weight*rotorOmega*rotorOmega*(blade_length/2.0)*(blade_length/2.0);//to je taky jen přibližné, zanedbávám cos u vzdalenosti od těžiště
-        double zlo=(discLocalMoment.X()-weightMoment)/odstrMomentMax;
-
-        double new_flap_angle=0;
-        if(zlo>=-0.25 && zlo<=0.25)//jen od 15 do 15 stupňů
-        {
-            new_flap_angle=std::asin(zlo);
-        }
-        else
-        {
-            if(zlo>0.25)
-                new_flap_angle=ToRad(15);
-            if(zlo<-0.25)
-                new_flap_angle=ToRad(-15);
-        }
-        
-        flaping_angle=new_flap_angle;//očekává konstantní omega
         rotorOmega+=2*PI/50*rotadd;
 
-		rotorAngle+=timeStep*rotorOmega; //Euler integration of rotor angle
+        for(int b=0;b<BLADE_COUNT;b++)
+            rotorBladeAngle[b]+=timeStep*rotorOmega; //Euler integration of rotor angle
+		
 
 		//update rotationAxR by input
 		Rdisc=Quaterniond(Vector3d(1,0,0),roll)
@@ -203,9 +243,6 @@ namespace gazebo
 			gzdbg <<"R: "<< roll << std::endl;
 			gzdbg <<"P: "<< pitch << std::endl;
             
-            gzdbg <<ToDeg(new_flap_angle)<<std::endl;
-           
-
 
             /*for(int u=-90;u<90;u++)
             {
@@ -233,16 +270,16 @@ namespace gazebo
         double delta_angle;
         double air_density;
         int number_of_elements;
-        double element_area=this->blade_width*this->blade_length/this->number_of_elements;
+        double element_area;
 
 		Vector3d lbladeDefaultPos;
 		Vector3d rbladeDefaultPos;
 
 		//rotor state		
 		Quaterniond Rdisc;
-		double rotorAngle; 
+		double rotorBladeAngle[BLADE_COUNT]; 
 		double rotorOmega; //uhlova rychlost v radianech
-        double flaping_angle;
+        double flaping_angle[BLADE_COUNT];
 
 		//input
 		double roll;
@@ -260,7 +297,7 @@ namespace gazebo
 		void UpdateRotorVisualPos()
 		{
 
-			Quaterniond rotorRot=Rdisc*Quaterniond(Vector3d(0,0,1), rotorAngle);
+			Quaterniond rotorRot=Rdisc*Quaterniond(Vector3d(0,0,1), rotorBladeAngle[0]);
 
 			base_link->SetVisualPose(leftBladeVisualID, Pose3d(rotor_pos+rotorRot.RotateVector(lbladeDefaultPos),rotorRot));
 			base_link->SetVisualPose(rightBladeVisualID, Pose3d(rotor_pos+rotorRot.RotateVector(rbladeDefaultPos),rotorRot));
@@ -275,6 +312,7 @@ namespace gazebo
 		void OnPitchCmdMsg(ConstAnyPtr &_msg)
 		{
 			//pitch = _msg->double_value();
+            pitch=0.0;
             rotadd=_msg->double_value();
 		}
 
@@ -300,6 +338,7 @@ namespace gazebo
 
         double getCD(double alpha)
         {
+            return 0.0;
             double alpha_degree=alpha*360.0/(2.0*3.141592);
             double CD=0.0;
             if(alpha_degree > -10  && alpha_degree <= -5)
