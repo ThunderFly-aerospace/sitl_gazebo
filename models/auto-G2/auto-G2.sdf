@@ -93,13 +93,19 @@
      <self_collide>0</self_collide>
     </link>
 
-	<plugin name="rotor plugin" filename="libgazebo_rotor_plugin.so">
+	<plugin name="rotor_plugin" filename="libgazebo_rotor_plugin.so">
 		<base_link>base_link</base_link>
 		<rotor_pos>0.0 0.0 0.25</rotor_pos><!-- offset from base_link-->
 		<blade_length>0.4</blade_length>
+        <blade_width>0.045</blade_width>
+        <blade_weight>0.04</blade_weight>
         <blade_delta>12</blade_delta>
 		<left_blade_visual>leftBlade</left_blade_visual>
 		<right_blade_visual>rightBlade</right_blade_visual>
+        <element_count>10</element_count>
+        <air_density>1.2041</air_density>
+       
+
 	</plugin>
 
     <plugin name="slow" filename="libgazebo_slow_plugin.so">
