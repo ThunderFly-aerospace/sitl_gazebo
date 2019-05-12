@@ -74,8 +74,8 @@ namespace gazebo
         pitch=0.0;
         roll=0.0;
 
-	 	lbladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
-		rbladeDefaultPos=Vector3d(0.0, blade_length/2,0.0);
+	 	lbladeDefaultPos=Vector3d(0.0, blade_length/2,0.0);
+		rbladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
 
 		Rdisc=Quaterniond(Vector3d(0,0,1),0);
 
@@ -121,6 +121,7 @@ namespace gazebo
       
        Vector3d omega=Rdisc*Vector3d(0,0,rotorOmega);
 
+
        for(int b=0;b<BLADE_COUNT;b++)
        {
 
@@ -128,24 +129,26 @@ namespace gazebo
             Quaterniond Rblade=Rdisc*Rrot;//otočení rotoru na hlavě     
 
             Vector3d bladeAirMoment(0,0,0);
+            Vector3d bladeAirForce(0,0,0);
             for(int i=0;i<FLAP_ITER;i++)//několik iterací na nalezení flapping uhlu
             {
                 //TADY CHYBY přidat úhel mezi osou rotace a osou hlavy později 
                 Quaterniond RbladeTotal=Rblade*Quaterniond(Vector3d(0,1,0),getFlapCorectionAngle(flaping_angle[b])); //otočení listu včetně flaping úhlu
 
-		        Vector3d forward=RbladeTotal*Vector3d(1,0,0);
+		        Vector3d forward=RbladeTotal*Vector3d(-1,0,0);//musí být pravotočivá soustava, asi
 		        Vector3d upward=RbladeTotal*Vector3d(0,0,1);
-                Vector3d wingCut=RbladeTotal*Vector3d(0,1,0);
+                Vector3d wingCut=RbladeTotal*Vector3d(0,-1,0);
 
                 bladeAirMoment.Set(0,0,0);
+                bladeAirForce.Set(0,0,0);
 
                 for(int e=0;e<number_of_elements;e++)
                 {
                     double d=(e+0.5)/number_of_elements*blade_length;
 
-                    Vector3d vel=(Rblade*Vector3d(0,d,0)).Cross(omega)+rotorLinVel;        
+                    Vector3d vel=omega.Cross((Rblade*Vector3d(0,d,0)))+rotorLinVel;
                     Vector2d airfoilVel= Vector2d(vel.Dot(forward),vel.Dot(upward));
-                    
+
                     double airfoilVelocity=airfoilVel.Length();
                     /*if(airfoilVelocity< SLOW_CONST)
                     {
@@ -154,7 +157,7 @@ namespace gazebo
                         continue;
                     }*/
 
-		            double alpha=-std::atan2(airfoilVel.Y(),airfoilVel.X());
+		            double alpha=std::atan2(airfoilVel.Y(),airfoilVel.X());
                     double q=0.5*this->air_density*this->element_area*airfoilVelocity*airfoilVelocity;
                     double L=q*getCL(alpha);
                     double D=q*getCD(alpha);
@@ -166,10 +169,12 @@ namespace gazebo
 
                     bladeAirMoment+=(Rblade*Vector3d(0,d,0)).Cross(liftForce);
                     bladeAirMoment+=(Rblade*Vector3d(0,d,0)).Cross(dragForce);
+                    bladeAirForce+=liftForce;
+                    bladeAirForce+=dragForce;
                 }
 
                 //rozklad momentů do flap a ax - do lokalních
-                Vector3d bladeLocalMoment =Rblade.RotateVectorReverse(bladeAirMoment);//zatím je bladeLocalMoment X složka, ale tady se pak projeví odklon osy od disku
+                Vector3d bladeLocalMoment =Rblade.RotateVectorReverse(bladeAirMoment);//zatím je flap X složka bladeLocalMomentu, ale tady se pak projeví odklon osy od disku
                 
                 //výpočet flap_angle 
                 double weightMoment=blade_length/2.0*blade_weight*9.81; //tohle je blbě, když bude rotor nakloněný, zahraje si jen čast váhy
@@ -207,7 +212,8 @@ namespace gazebo
             if(counter==DEBUG_CONST)
 		    {
                    gzdbg <<ToDeg(flaping_angle[b])<<std::endl;
-                   gzdbg <<bladeLocalMoment.Z()<<std::endl;
+                   gzdbg <<bladeLocalMoment<<std::endl;
+                   gzdbg <<Rblade.RotateVectorReverse(bladeAirForce)<<std::endl;
             }
         }
 
@@ -227,14 +233,7 @@ namespace gazebo
 		//debuging loop
 		if(counter==DEBUG_CONST)
 		{
-           /* const Quaterniond baseRot=this->base_link->WorldPose().Rot();
-            
-	            gzdbg << "Alpha: " << alpha*360.0/(2.0*3.141592) << "\n";
-			gzdbg << "L: "<< baseRot.Inverse()*liftForce <<"\n";
-            gzdbg << "D: "<< baseRot.Inverse()*dragForce <<"\n";
-
-
-            gazebo::msgs::Vector3d msg;
+           /* gazebo::msgs::Vector3d msg;
         	gazebo::msgs::Set(&msg, liftForce);
 
         	rotorfreq_pub_->Publish(msg);*/
@@ -242,14 +241,6 @@ namespace gazebo
 			gzdbg << rotorOmega/2.0/PI*60 <<std::endl;
 			gzdbg <<"R: "<< roll << std::endl;
 			gzdbg <<"P: "<< pitch << std::endl;
-            
-
-            /*for(int u=-90;u<90;u++)
-            {
-                double urad=ToRad(u);
-                gzdbg<<u <<":" << ToDeg(getFlapCorectionAngle(urad)) << std::endl;
-            }*/
-
 		}
 
 	}
@@ -338,7 +329,7 @@ namespace gazebo
 
         double getCD(double alpha)
         {
-            return 0.0;
+            
             double alpha_degree=alpha*360.0/(2.0*3.141592);
             double CD=0.0;
             if(alpha_degree > -10  && alpha_degree <= -5)

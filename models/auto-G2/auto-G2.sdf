@@ -102,7 +102,7 @@
         <blade_delta>12</blade_delta>
 		<left_blade_visual>leftBlade</left_blade_visual>
 		<right_blade_visual>rightBlade</right_blade_visual>
-        <element_count>10</element_count>
+        <element_count>20</element_count>
         <air_density>1.2041</air_density>
        
 
