@@ -16,19 +16,19 @@
 
   
    <!--single autogyro-->
-   <!--<include>
+<!--   <include>
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
    </include>-->
-   <include>
+  <include>
       <uri>model://auto-G2</uri>
       <pose>0 0 0.2 0 0 0</pose>
-   </include>
+  </include>
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
-   <!--<model name='hanging_autogyro'>
+ <!--  <model name='hanging_autogyro'>
 	   <include>
-		  <uri>model://autogyro</uri>
+		  <uri>model://auto-G2</uri>
 		  <pose frame=''>0 0 2 0 0 0</pose>
 	   </include>
 	   <model name='box'>
@@ -46,11 +46,12 @@
 		</model>	
 	 	<joint name='hang_joint' type='ball'>
 		   <parent>box::link</parent>
-		   <child>autogyro::rotorwing</child>
-		</joint>
+		   <child>autogyro::base_link</child>
+           <!--<pose>0 0 0.25 0 0 0 </pose>-->
+	<!--	</joint>
 		<plugin name="slow" filename="libgazebo_slow_plugin.so">
 			  <base_link>autogyro::base_link</base_link>
-			  <coef>5</coef>
+			  <coef>1</coef>
 		</plugin>
    </model>-->
 
@@ -131,9 +132,9 @@
    </model>-->
  
    <!-- autogyro on moving mox -->
-   <!--<model name='moving_box'>
+ <!-- <model name='moving_box'>
        <include>
-          <uri>model://autogyro</uri>
+          <uri>model://auto-G2</uri>
           <pose>0 0 1.2 0 0 0</pose>
        </include>
        <include>
@@ -141,14 +142,14 @@
           <name>box</name>
           <pose>0 0 0 0 0 0</pose>
        </include>
-       <joint name='car_connection' type='revolute'>
+       <joint name='car_connection' type='fixed'>
           <parent>box::link</parent>
           <child>autogyro::base_link</child>
-          <pose>0 0 0 0 0 0 </pose>
-          <axis>
+          <pose>0 0 0 0 0 0 </pose>-->
+          <!--<axis>
             <xyz>1 0 0</xyz>
-          </axis>
-        </joint>
+          </axis>-->
+      <!--  </joint>
         <self_collide>1</self_collide>
     </model>-->
 
@@ -214,9 +215,7 @@
 		  </physics>
 		</joint>
    </model>-->
-
-
-   
+ 
     <gravity>0 0 -9.8066</gravity>
 
     <physics name='default_physics' default='true' type='ode'>
@@ -276,7 +275,7 @@
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
 
-         <!--<track_visual>
+       <!--  <track_visual>
           <name>moving_box</name>
           <use_model_frame>true</use_model_frame>
 		  <static>true</static>

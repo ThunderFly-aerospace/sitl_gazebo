@@ -48,7 +48,7 @@
 	
 	 <plugin name="speed" filename="libgazebo_const_speed_plugin.so">
 		<base_link>box::link</base_link>
-	    <speed_vct>0 0  0</speed_vct>
+	    <speed_vct>0 0 0</speed_vct>
 	 </plugin>
   </model>
 </sdf>

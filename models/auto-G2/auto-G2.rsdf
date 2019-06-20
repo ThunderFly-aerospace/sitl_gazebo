@@ -3,12 +3,12 @@
   # Autogyro parameters
 
   #body mass and its position - approximation of CenterOfMass 
-  body_mass   = 200
-  body_size_x=0.5
-  body_size_y=0.5
+  body_mass   = 0.8
+  body_size_x=0.20
+  body_size_y=0.20
   body_size_z=0.2
 
-  body_cog_x = 0.05
+  body_cog_x = 0.025
   body_cog_y = 0
   body_cog_z = 0.05
 
@@ -34,22 +34,18 @@
   rotor_y = 0.0
   rotor_z = 0.25
 
-  rotor_pitch_angle = 12
-  
   blade_length = 0.4
-  blade_width = 0.045
-  blade_thin = 0.01
+  blade_width = 0.04
+  blade_thin= 0.01
   blade_weight = 0.040
-  blade_flap_offset = 0.01
   blade_flap_delta_angle=12
-  blade_zero_collective_angle=-2
 
   #wheels position
   front_x = 0.5
   front_z = -0.095
 
-  rear_x = -0.22
-  rear_y = 0.50 #jedno je + druhý -
+  rear_x = -0.30
+  rear_y = 0.30 #jedno je + druhý -
   rear_z = -0.095
  
 %>
@@ -81,8 +77,8 @@
         <surface>
           <friction>
             <ode>
-              <mu>0.1</mu>
-              <mu2>0.1</mu2>
+              <mu>0.01</mu>
+              <mu2>0.01</mu2>
             </ode>
           </friction>
           <contact>
@@ -103,7 +99,7 @@
       </visual>
 
      <!--ocas - visual-->
-    <!-- <visual name='tail_connection'>
+     <visual name='tail_connection'>
         <pose><%=tail_pos_x/2%> 0 0 0 0 0</pose>
         <geometry>
           <box>
@@ -126,7 +122,7 @@
             <size><%=tail_rudler_size_x%> 0.01 <%=tail_rudler_size_z%> </size>
           </box>
         </geometry>
-     </visual>-->
+     </visual>
 
 	<!-- rotor !-->
 	<visual name='leftBlade'>
@@ -155,15 +151,13 @@
         <blade_delta><%=blade_flap_delta_angle%></blade_delta>
 		<left_blade_visual>leftBlade</left_blade_visual>
 		<right_blade_visual>rightBlade</right_blade_visual>
-        <element_count>20</element_count>
+        <element_count>30</element_count>
         <air_density>1.2041</air_density>
-       
-
 	</plugin>
 
     <plugin name="slow" filename="libgazebo_slow_plugin.so">
 	      <base_link>base_link</base_link>
-	      <coef>3</coef>
+	      <coef>0.5</coef>
     </plugin>
 
     <link name='imu_link'>
@@ -201,7 +195,7 @@
     </joint>
 
 <!--==================================================WHEELS================================================================-->
-<!--	<include>
+    <include>
           <uri>model://auto-G2/wheel</uri>
 		  <name>center_front_wheel</name>
           <pose> <%= front_x %> 0.0 <%= front_z %> 1.5707 1.5707</pose> 
@@ -272,11 +266,8 @@
         </ode>
       </physics>
     </joint>
--->
 <!--=================================================== TAIL ===================================================================-->
-
-
-<!--    <link name="rudder">
+   <link name="rudder">
       <pose> <%=tail_pos_x-1.1*tail_rudler_size_x %> 0 <%=tail_rudler_size_z/2%> 0 0 0 </pose>
       <inertial>
         <mass>0.006</mass>
@@ -346,7 +337,7 @@
       </axis>
     </joint>
 
-    <plugin name="elevator_plugin" filename="libLiftDragPlugin.so">
+   <plugin name="elevator_plugin" filename="libLiftDragPlugin.so">
       <a0>0.0</a0>
       <cla>4.752798721</cla>
       <cda>0.6417112299</cda>
@@ -363,7 +354,7 @@
       <link_name>base_link</link_name>
       <control_joint_name>elev_joint</control_joint_name>
       <control_joint_rad_to_cl>-4.0</control_joint_rad_to_cl>
-    </plugin>
+    </plugin>-->
 
     <plugin name="rightrudder" filename="libLiftDragPlugin.so">
       <a0>0.0</a0>
@@ -384,11 +375,11 @@
         rudder_joint
       </control_joint_name>
       <control_joint_rad_to_cl>4.0</control_joint_rad_to_cl>-->
-   <!-- </plugin>-->
+    </plugin>
 
 
 <!--============================================================== VRTULE ==================================================-->
- <!--   <joint name='propeller_joint' type='revolute'>
+    <joint name='propeller_joint' type='revolute'>
       <child>propeller</child>
       <parent>base_link</parent>
       <axis>
@@ -437,241 +428,8 @@
       <force_pos><%= motor_x %> <%= motor_y %> <%= motor_z%></force_pos>
       <force_dir><%= Math.cos(motor_pitch_angle/360.0*2.0*Math::PI) %> 0 <%= Math.sin(motor_pitch_angle/360.0*2.0*Math::PI) %></force_dir>
       <coef>0.01</coef>
-    </plugin>-->
-
-
-<!--============================================================== ROTOR ================================================-->
-
-<!--    <joint name='roll_joint' type='revolute'>
-      <child>roll-dummylink</child>
-      <parent>base_link</parent>
-      <pose>0 0 0 0 0 0</pose>
-      <axis>
-        <xyz><%= Math.cos(rotor_pitch_angle/360.0*2.0*Math::PI) %> 0 <%= Math.sin(rotor_pitch_angle/360.0*2.0*Math::PI) %></xyz>
-        <limit>          
-          <lower>-0.349</lower>
-          <upper>0.349</upper>
-        </limit>
-        <use_parent_model_frame>1</use_parent_model_frame>
-      </axis>
-      <physics>
-        <ode>
-            <cfm>0.000000</cfm>
-            <erp>0.95000</erp>
-        </ode>
-      </physics>
-    </joint>
-
-    <link name='roll-dummylink'>
-      <pose><%= rotor_x%> <%= rotor_y%> <%= rotor_z%> 0 <%=-rotor_pitch_angle/360.0*2.0*Math::PI%> 0</pose>
-	  <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.01</mass>
-        <inertia>
-          <ixx>1e-4</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-4</iyy>
-          <iyz>0</iyz>
-          <izz>1e-4</izz>
-        </inertia>
-      </inertial>
-    </link>
-
-    <joint name='spin_dummyjoint' type='revolute'>
-      <child>rotor-center-link</child>
-      <parent>roll-dummylink</parent>
-      <pose>0 0 0 0 0 0</pose>
-      <axis>
-        <xyz> <%=-Math.sin(rotor_pitch_angle/360.0*2.0*Math::PI) %> 0 <%=Math.cos(rotor_pitch_angle/360.0*2.0*Math::PI) %></xyz>
-        <use_parent_model_frame>1</use_parent_model_frame>
-      </axis>
-      <physics>
-        <ode>
-            <cfm>0.000000</cfm>
-            <erp>0.950000</erp>
-        </ode>
-      </physics>
-    </joint>
-
-    <plugin name="speed" filename="libgazebo_joint_speed_plugin.so">
-      <joint>spin_dummyjoint</joint>
     </plugin>
 
-    <link name='rotor-center-link'>
-      <pose><%= rotor_x%> <%= rotor_y%> <%= rotor_z%> 0 <%=-rotor_pitch_angle/360.0*2.0*Math::PI%> 0</pose>
-	  <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.01</mass>
-        <inertia>
-          <ixx>1e-04</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-04</iyy>
-          <iyz>0</iyz>
-          <izz>1e-04</izz>
-        </inertia>
-      </inertial>
-     <visual name='rotor-center-visual'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.01</radius>
-            <length>0.01</length>
-          </cylinder>
-        </geometry>
-     </visual>
-    </link>
-
-    <joint name='flap_right_joint' type='revolute'>
-      <child>right-bladelink</child>
-      <parent>rotor-center-link</parent>
-      <pose>0 <%=blade_length/2.0%> 0 0 0 0</pose>
-      <axis>
-        <xyz><%=-Math.cos(blade_flap_delta_angle/360.0*2.0*Math::PI)%> <%=Math.sin(blade_flap_delta_angle/360.0*2.0*Math::PI)%> 0</xyz>
-        <limit>          
-          <lower>0.00</lower>
-          <upper>0.35</upper>
-        </limit>
-      </axis>
-      <physics>
-        <ode>
-            <cfm>0.000000</cfm>
-            <erp>0.950000</erp>
-        </ode>
-      </physics>
-    </joint>-->
-
-	<!--<plugin name="left_spring" filename="libgazebo_joint_spring_plugin.so">
-          <joint>flap_left_joint</joint>
-          <parentPoint>0 0.1 0</parentPoint>
-          <childPoint>0 -0.4 0</childPoint>
-          <zero>0.0</zero>
-          <k>1000</k>
-	</plugin>-->
-
-  <!--  <link name='right-bladelink'>
-      <pose><%= rotor_x%> <%= rotor_y-blade_flap_offset-blade_length/2.0%> <%= rotor_z%> 0 <%=(-blade_zero_collective_angle-rotor_pitch_angle)/360.0*2.0*Math::PI%> 0</pose>
-	  <inertial> 
-        <mass><%= blade_weight %></mass>
-        <inertia>
-          <ixx><%= blade_weight/12*(blade_length*blade_length+blade_thin*blade_thin) %></ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy><%=blade_weight/12*(blade_width*blade_width+blade_thin*blade_thin) %></iyy>
-          <iyz>0</iyz>
-          <izz><%=blade_weight/12*(blade_width*blade_width+blade_width*blade_width) %></izz>
-        </inertia>
-      </inertial>
-	  <visual name='visual'>
-		  <geometry>
-		       <box>
-          	      <size> <%=blade_width%> <%=blade_length%> <%=blade_thin%></size>
-               </box>
-		 </geometry>
-	 </visual>
-     <collision name='link_collision'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-	       <box>
-      	      <size> <%=blade_width%> <%=blade_length%> <%=blade_thin%></size>
-           </box>
-        </geometry>
-        <surface>
-          <friction>
-            <ode>
-              <mu>0.1</mu>
-              <mu2>0.1</mu2>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-    </link>
-
-    <joint name='flap_left_joint' type='revolute'>
-      <child>left-bladelink</child>
-      <parent>rotor-center-link</parent>
-      <pose>0 <%=blade_length/2.0%> 0 0 0 0</pose>
-      <axis>
-        <xyz><%=-Math.cos(blade_flap_delta_angle/360.0*2.0*Math::PI)%> <%=Math.sin(blade_flap_delta_angle/360.0*2.0*Math::PI)%> 0</xyz>
-        <limit>          
-          <lower>0.00</lower>
-          <upper>0.35</upper>
-        </limit>
-      </axis>
-      <physics>
-        <ode>
-            <cfm>0.000000</cfm>
-            <erp>0.950000</erp>
-        </ode>
-      </physics>
-    </joint>-->
-
-	<!--<plugin name="left_spring" filename="libgazebo_joint_spring_plugin.so">
-          <joint>flap_left_joint</joint>
-          <parentPoint>0 0.1 0</parentPoint>
-          <childPoint>0 -0.4 0</childPoint>
-          <zero>0.0</zero>
-          <k>1000</k>
-	</plugin>-->
-
-   <!-- <link name='left-bladelink'>
-      <pose><%= rotor_x%> <%= rotor_y+blade_flap_offset+blade_length/2.0%> <%= rotor_z%> 0 <%=(-blade_zero_collective_angle+rotor_pitch_angle)/360.0*2.0*Math::PI%> <%=Math::PI%></pose>
-	  <inertial> 
-        <mass><%= blade_weight %></mass>
-        <inertia>
-          <ixx><%= blade_weight/12*(blade_length*blade_length+blade_thin*blade_thin) %></ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy><%=blade_weight/12*(blade_width*blade_width+blade_thin*blade_thin) %></iyy>
-          <iyz>0</iyz>
-          <izz><%=blade_weight/12*(blade_width*blade_width+blade_width*blade_width) %></izz>
-        </inertia>
-      </inertial>
-	  <visual name='visual'>
-		  <geometry>
-		       <box>
-          	      <size> <%=blade_width%> <%=blade_length%> <%=blade_thin%></size>
-               </box>
-		 </geometry>
-	 </visual>
-     <collision name='link_collision'>
-        <pose>0 0 0 0 0 0</pose>
-        <geometry>
-	       <box>
-      	      <size> <%=blade_width%> <%=blade_length%> <%=blade_thin%></size>
-           </box>
-        </geometry>
-        <surface>
-          <friction>
-            <ode>
-              <mu>0.1</mu>
-              <mu2>0.1</mu2>
-            </ode>
-          </friction>
-        </surface>
-      </collision>
-    </link>
-
-   <plugin name="left_rotorblade" filename="libgazebo_rotor_blade_plugin.so">
-      <link>left-bladelink</link>
-      <forward>1 0 0</forward>
-      <upward> 0 0 1 </upward>
-      <length> <%=blade_length%> </length>
-      <width> <%=blade_width%> </width>
-      <airDensity> 1.2041 </airDensity>
-      <elementCount>50</elementCount>
-   </plugin>
-
-   <plugin name="right_rotorblade" filename="libgazebo_rotor_blade_plugin.so">
-      <link>right-bladelink</link>
-      <forward>1 0 0</forward>
-      <upward> 0 0 1 </upward>
-      <length> <%=blade_length%> </length>
-      <width> <%=blade_width%> </width>
-      <airDensity> 1.2041 </airDensity>
-      <elementCount>50</elementCount>
-   </plugin>-->
 
 <!--==========================================================Joystick for dummy joints============================================-->
 <link name='joystic_base_link'>
@@ -740,7 +498,7 @@
    <channel name="propeller">
       <input_index>4</input_index>
       <input_offset>0</input_offset>
-      <input_scaling>3500</input_scaling>
+      <input_scaling>750</input_scaling>
       <zero_position_disarmed>0</zero_position_disarmed>
       <zero_position_armed>0</zero_position_armed>
       <joint_control_type>velocity</joint_control_type>
@@ -782,9 +540,7 @@
 
 
         <!-- ocas-->
-  <!--      
-
-        <channel name="rudder_channel">
+       <!-- <channel name="rudder_channel">
           <input_index>0</input_index>
           <input_offset>0</input_offset>
           <input_scaling>0.8</input_scaling>

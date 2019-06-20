@@ -82,7 +82,7 @@ namespace gazebo
 		//debuging loop
 		if(counter==DEBUG_CONST)
 		{
-            gzdbg << "Speed: " << this->speed_vct << "\n";
+            //gzdbg << "Speed: " << this->speed_vct << "\n";
 		}
 	}
 

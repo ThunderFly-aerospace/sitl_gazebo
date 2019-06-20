@@ -9,7 +9,7 @@
 #include <cmath>
 
 #define SLOW_CONST 0.1
-#define DEBUG_CONST 300
+#define DEBUG_CONST 100
 #define PI 3.141592654
 #define AIR_DENSITY 1.2041
 #define ToDeg(a) ((a)/2.0/PI*360.0)
@@ -17,9 +17,7 @@
 
 #define BLADE_COUNT 2
 
-#define EPSILON 0.0001
-#define FLAP_P 0.5
-#define FLAP_ITER 20
+#define UPDATE_PER_ROUND 100
 
 using namespace ignition::math;
 using namespace ignition::math::v4;
@@ -29,24 +27,24 @@ namespace gazebo
 {
 
   class RotorPlugin : public ModelPlugin
-	  {
+  {
 
     public: 
-	RotorPlugin() {}
+    RotorPlugin() {}
 
-	~RotorPlugin()
-	{
-		updateConnection->~Connection(); //??
-	}
+    ~RotorPlugin()
+    {
+        updateConnection->~Connection(); //??
+    }
 
     virtual void Load(physics::ModelPtr model, sdf::ElementPtr _sdf)
     {
       // Just output a message for now
-		gzdbg << " RotorPlugin is attach to model[" << model->GetName() << "]\n";
+        gzdbg << " RotorPlugin is attach to model[" << model->GetName() << "]\n";
 
-		this->base_link = model->GetChildLink(_sdf->GetElement("base_link")->Get<std::string>());
+        this->base_link = model->GetChildLink(_sdf->GetElement("base_link")->Get<std::string>());
         this->rotor_pos = _sdf->Get<Vector3d>("rotor_pos");
-		this->blade_length=_sdf->GetElement("blade_length")->Get<double>();
+        this->blade_length=_sdf->GetElement("blade_length")->Get<double>();
         this->blade_width=_sdf->GetElement("blade_width")->Get<double>();
         this->blade_weight=_sdf->GetElement("blade_weight")->Get<double>();
         this->delta_angle=ToRad(_sdf->GetElement("blade_delta")->Get<double>());
@@ -54,101 +52,114 @@ namespace gazebo
         this->number_of_elements=_sdf->Get<int>("element_count");;
         this->element_area=this->blade_width*this->blade_length/this->number_of_elements;
 
-		 
-		base_link->VisualId(_sdf->GetElement("left_blade_visual")->Get<std::string>(), this->leftBladeVisualID);
-		base_link->VisualId(_sdf->GetElement("right_blade_visual")->Get<std::string>(), this->rightBladeVisualID);
-		
-		this->world=model->GetWorld();
+        base_link->VisualId(_sdf->GetElement("right_blade_visual")->Get<std::string>(), bladeVisualID[0]);         
+        base_link->VisualId(_sdf->GetElement("left_blade_visual")->Get<std::string>(), bladeVisualID[1]);
 
-		counter=0;
-		rotorOmega=PI/4;
-		lastUpdateTime =0.0;
+        
+        this->world=model->GetWorld();
+
+        counter=0;
+        rotorOmega=10*PI;
+        lastUpdateTime =0.0;
 
         for(int b=0;b<BLADE_COUNT;b++)
         {
             rotorBladeAngle[b]=b*2.0*PI/BLADE_COUNT;
-            flaping_angle[b]=ToRad(0);
+            bladeFlapAngle[b]=ToRad(15);
+            bladeOmega[b]=base_link->WorldPose().Rot()*(rotorOmega*Vector3d(0,0,1));
         }
-            
+        bladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);            
 
-        pitch=0.0;
+        pitch=0.0;//ToRad(-12);
         roll=0.0;
+       
+        UpdateRotorVisualPos();
 
-	 	lbladeDefaultPos=Vector3d(0.0, blade_length/2,0.0);
-		rbladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
-
-		Rdisc=Quaterniond(Vector3d(0,0,1),0);
-
-		UpdateRotorVisualPos();
-
-		this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-			std::bind(&RotorPlugin::OnUpdate, this));
+        this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+            std::bind(&RotorPlugin::OnUpdate, this));
 
         //messaging
-		node_handle = transport::NodePtr(new transport::Node());
-		node_handle->Init(model->GetWorld()->Name());
+        node_handle = transport::NodePtr(new transport::Node());
+        node_handle->Init(model->GetWorld()->Name());
 
-		std::string rollCmdTopic = "~/" + model->GetName() + "/rotor_roll_cmd";
-		std::string pitchCmdTopic = "~/" + model->GetName() + "/rotor_pitch_cmd";
+        std::string rollCmdTopic = "~/" + model->GetName() + "/rotor_roll_cmd";
+        std::string pitchCmdTopic = "~/" + model->GetName() + "/rotor_pitch_cmd";
 
-		// Subscribe to the topics, and register a callbacks
-		control_roll_sub = node_handle->Subscribe(rollCmdTopic, &RotorPlugin::OnRollCmdMsg, this);
-		control_pitch_sub = node_handle->Subscribe(pitchCmdTopic, &RotorPlugin::OnPitchCmdMsg, this);	
+        // Subscribe to the topics, and register a callbacks
+        control_roll_sub = node_handle->Subscribe(rollCmdTopic, &RotorPlugin::OnRollCmdMsg, this);
+        control_pitch_sub = node_handle->Subscribe(pitchCmdTopic, &RotorPlugin::OnPitchCmdMsg, this);    
 
-		/*rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);*/
+        /*rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);*/
 
-	}
+    }
 
-	virtual void OnUpdate()
-	{
-		//debuging loop
+    virtual void OnUpdate()
+    {
+        //debuging loop
         counter++;
-		if(counter>DEBUG_CONST)
-		{
-			counter=0;
-		}
+        if(counter>DEBUG_CONST)
+        {
+            counter=0;
+        }
 
-		common::Time currentTime=this->world->SimTime();
-		double timeStep=currentTime.Double() - this->lastUpdateTime.Double();
-		this->lastUpdateTime=currentTime;
-			
+        common::Time currentTime=this->world->SimTime();
+        double timeStep=currentTime.Double() - this->lastUpdateTime.Double();
+        this->lastUpdateTime=currentTime;
+            
 
 
         const Vector3d & rotorLinVel=base_link->WorldLinearVel(rotor_pos);
 //        const Vector3d base_pose=base_link->WorldPose().Pos();
-//        const Quaterniond base_rot=base_link->WorldPose().Rot();
+        const Quaterniond base_rot=base_link->WorldPose().Rot();
 
       
-       Vector3d omega=Rdisc*Vector3d(0,0,rotorOmega);
+       double rotorFrequency=std::fabs(rotorOmega/2.0/PI);       
+       int outerUpdatesPerRound=std::round(1.0/timeStep/rotorFrequency);
+       int innerUpdates=(UPDATE_PER_ROUND/outerUpdatesPerRound)+1;
+       if(innerUpdates<1)
+            innerUpdates=1;
 
-
-       for(int b=0;b<BLADE_COUNT;b++)
+      /* if(counter==DEBUG_CONST)
        {
+            //gzdbg <<"rot Frequency:" <<rotorFrequency<<std::endl;
+            //gzdbg <<"outer update:" <<outerUpdatesPerRound<<std::endl;
+            gzdbg <<"innerUpdates:" <<innerUpdates<<std::endl;
+            //gzdbg <<"real updates:" << outerUpdatesPerRound*innerUpdates <<std::endl;
+            //gzdbg <<"expected updates:" <<UPDATE_PER_ROUND<<std::endl;
+       }*/
 
-            Quaterniond Rrot(Vector3d(0,0,1), rotorBladeAngle[b]);//otočení rotoru  
-            Quaterniond Rblade=Rdisc*Rrot;//otočení rotoru na hlavě     
 
-            Vector3d bladeAirMoment(0,0,0);
-            Vector3d bladeAirForce(0,0,0);
-            for(int i=0;i<FLAP_ITER;i++)//několik iterací na nalezení flapping uhlu
-            {
-                //TADY CHYBY přidat úhel mezi osou rotace a osou hlavy později 
-                Quaterniond RbladeTotal=Rblade*Quaterniond(Vector3d(0,1,0),getFlapCorectionAngle(flaping_angle[b])); //otočení listu včetně flaping úhlu
+       double innerTimeStep=timeStep/innerUpdates;
+	   Vector3d rotorTimeStepForce(0,0,0);
+       for(int ts=0;ts<innerUpdates;ts++)
+       {
+           Vector3d rotorTotalForce(0,0,0);
+           Vector3d rotorTotalForceMoment(0,0,0);
+           for(int b=0;b<BLADE_COUNT;b++)
+           {
+    
+                //vypočet vztlaku a dragu
+                Quaterniond Rblade=base_link->WorldPose().Rot()
+                    *Quaterniond(Vector3d(1,0,0),roll)
+                     *Quaterniond(Vector3d(0,1,0),pitch)
+                     *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
+                     *Quaterniond(Vector3d(std::cos(delta_angle),-std::sin(delta_angle),0),bladeFlapAngle[b]);
 
-		        Vector3d forward=RbladeTotal*Vector3d(-1,0,0);//musí být pravotočivá soustava, asi
-		        Vector3d upward=RbladeTotal*Vector3d(0,0,1);
-                Vector3d wingCut=RbladeTotal*Vector3d(0,-1,0);
-
-                bladeAirMoment.Set(0,0,0);
-                bladeAirForce.Set(0,0,0);
+                Vector3d forward=Rblade*Vector3d(1,0,0);//musí být pravotočivá soustava, asi
+                Vector3d upward=Rblade*Vector3d(0,0,1);
+                Vector3d wingCut=Rblade*Vector3d(0,1,0);
+                    
+                Vector3d bladeAirMoment(0,0,0);
+                Vector3d bladeAirForce(0,0,0);
 
                 for(int e=0;e<number_of_elements;e++)
                 {
+                    //int e=number_of_elements-1;
                     double d=(e+0.5)/number_of_elements*blade_length;
-
-                    Vector3d vel=omega.Cross((Rblade*Vector3d(0,d,0)))+rotorLinVel;
+                    Vector3d r=Rblade*Vector3d(0,-d,0);
+                    Vector3d vel=bladeOmega[b].Cross(r)+rotorLinVel;
                     Vector2d airfoilVel= Vector2d(vel.Dot(forward),vel.Dot(upward));
-
+              
                     double airfoilVelocity=airfoilVel.Length();
                     /*if(airfoilVelocity< SLOW_CONST)
                     {
@@ -157,7 +168,7 @@ namespace gazebo
                         continue;
                     }*/
 
-		            double alpha=std::atan2(airfoilVel.Y(),airfoilVel.X());
+                    double alpha=-std::atan2(airfoilVel.Y(),airfoilVel.X());
                     double q=0.5*this->air_density*this->element_area*airfoilVelocity*airfoilVelocity;
                     double L=q*getCL(alpha);
                     double D=q*getCD(alpha);
@@ -167,95 +178,177 @@ namespace gazebo
                     Vector3d dragDirection= -(vel-vel.Dot(wingCut)).Normalize();
                     Vector3d dragForce=D*dragDirection;//tohle je po větru
 
-                    bladeAirMoment+=(Rblade*Vector3d(0,d,0)).Cross(liftForce);
-                    bladeAirMoment+=(Rblade*Vector3d(0,d,0)).Cross(dragForce);
+                    bladeAirMoment+=r.Cross(liftForce);
+                    bladeAirMoment+=r.Cross(dragForce);
                     bladeAirForce+=liftForce;
                     bladeAirForce+=dragForce;
                 }
 
-                //rozklad momentů do flap a ax - do lokalních
-                Vector3d bladeLocalMoment =Rblade.RotateVectorReverse(bladeAirMoment);//zatím je flap X složka bladeLocalMomentu, ale tady se pak projeví odklon osy od disku
-                
-                //výpočet flap_angle 
-                double weightMoment=blade_length/2.0*blade_weight*9.81; //tohle je blbě, když bude rotor nakloněný, zahraje si jen čast váhy
-                double odstrMomentMax=blade_weight*rotorOmega*rotorOmega*(blade_length/2.0)*(blade_length/2.0);//to je taky jen přibližné, zanedbávám cos u vzdalenosti od těžiště
-                double zlo=(bladeLocalMoment.X()-weightMoment)/odstrMomentMax;
+                Vector3d flapAx=base_link->WorldPose().Rot()
+                    *Quaterniond(Vector3d(1,0,0),roll)
+                    *Quaterniond(Vector3d(0,1,0),pitch)
+                    *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
+                     *Vector3d(std::cos(delta_angle),-std::sin(delta_angle),0);
 
-                double new_flap_angle=0;
-                if(zlo>=-0.25 && zlo<=0.25)//jen od 15 do 15 stupňů
-                {
-                    new_flap_angle=std::asin(zlo);
-                }
-                else
-                {
-                    if(zlo>0.25)
-                        new_flap_angle=ToRad(15);
-                    if(zlo<-0.25)
-                        new_flap_angle=ToRad(-15);
-                }
+                double omega=bladeOmega[b].Length();
+                Vector3d omegaAx=bladeOmega[b]/omega;
+                                    
+                Vector3d bladeT=Rblade*Vector3d(0,-blade_length/2.0,0);
+                //double airFlapMoment=bladeAirMoment.Dot(flapAx);
+                Vector3d bladeWeightForce(0,0,-blade_weight*9.81);
+                Vector3d bladeWeightForceMoment=(bladeT.Cross(bladeWeightForce));                
+              
+                Vector3d odstrDir=bladeT-((bladeT.Dot(omegaAx))*omegaAx);
+                Vector3d odstrForce=omega*omega*blade_weight*odstrDir;
+                Vector3d odstrForceMoment=(bladeT.Cross(odstrForce));
+                //double odstrFlapMoment=odstrForceMoment.Dot(flapAx);
 
-                if(fabs(flaping_angle[b]-new_flap_angle)<EPSILON)
-                {
-                    if(counter==DEBUG_CONST)
-		                    gzdbg<<"flap iterations:" << i <<std::endl;       
-                    break;
-                }
-                else
-                {
-                    flaping_angle[b]+=FLAP_P*(new_flap_angle-flaping_angle[b]);
-                    if(i==(FLAP_ITER-1))
-                        gzdbg<<"Flapping angle not stabilized" <<std::endl;
-                }
+                /*bladeAirMoment=bladeAirMoment.Dot(flapAx)*flapAx+bladeAirMoment.Dot(omegaAx)*omegaAx;
+                bladeWeightForceMoment=bladeWeightForceMoment.Dot(flapAx)*flapAx+bladeWeightForceMoment.Dot(omegaAx)*omegaAx;//forget bladeAx momentum
+                odstrForceMoment=odstrForceMoment.Dot(flapAx)*flapAx+odstrForceMoment.Dot(omegaAx)*omegaAx;//forget bladeAx momentum*/
+   
+
+                Vector3d bladeTotalForce=odstrForce+bladeWeightForce+bladeAirForce;
+                Vector3d bladeTotalForceMoment=odstrForceMoment+bladeAirMoment+bladeWeightForceMoment;
+
+                //forget bladeAx momentum
+                bladeTotalForceMoment=bladeTotalForceMoment.Dot(flapAx)*flapAx+bladeTotalForceMoment.Dot(omegaAx)*omegaAx;
+
+				/*if(counter==DEBUG_CONST)
+				{
+					gzdbg << b <<" angle:" << ToDeg(bladeFlapAngle[b]) <<std::endl;
+                    gzdbg << b <<" moment: "<< odstrFlapMoment <<" " <<bladeWeightFlapMoment <<std::endl;
+					gzdbg << b <<"  omega:" << Rblade.RotateVectorReverse(bladeOmega[b]) <<std::endl;
+				}*/
+
+				if(bladeTotalForceMoment.Length()>0)
+				{
+                	double J=1.0/12.0*blade_weight*blade_length*blade_length;//to je vůči těžišti
+                	J+=blade_weight*blade_length/2*blade_length/2;//Steinerova větě - posun do konce listu
+                	bladeOmega[b]=bladeOmega[b]+innerTimeStep*bladeTotalForceMoment/J;//tohle není úplně dobře, v ose listu je J->0 -řešíme zapomenutím tohoto momentu
+				}
+
+                rotorTotalForce+=bladeTotalForce;
+                rotorTotalForceMoment+=bladeTotalForceMoment;
+
+               /* if(counter==DEBUG_CONST)
+	            {
+                    gzdbg << " Blade ["<< b << "]   force: " << Rblade.RotateVectorReverse(bladeTotalForce) << std::endl;
+                }*/
             }
 
-            Vector3d bladeLocalMoment=Rblade.RotateVectorReverse(bladeAirMoment);
-            if(counter==DEBUG_CONST)
+
+            //sjedocení rotace okolo osy rotoru
+            Vector3d rotorAx=base_link->WorldPose().Rot()
+                                                *Quaterniond(Vector3d(1,0,0),roll)
+                                                *Quaterniond(Vector3d(0,1,0),pitch)
+                                                *Vector3d(0,0,1);
+            rotorOmega=0;
+            for(int b=0;b<BLADE_COUNT;b++)
+                rotorOmega+=bladeOmega[b].Dot(rotorAx);
+            rotorOmega/=BLADE_COUNT;
+
+            //rotorOmega+=(rotadd*PI/25.0);
+
+            for(int b=0;b<BLADE_COUNT;b++)
+            {
+                bladeOmega[b]=bladeOmega[b]+(rotorOmega-bladeOmega[b].Dot(rotorAx))*rotorAx;
+            }
+
+
+            /*if(counter==DEBUG_CONST)
+            {      
+                   //gzdbg <<"angle: " << rotorBladeAngle[0]
+                         gzdbg<<"rotor Ax: " << base_link->WorldPose().Rot()
+                                                *Quaterniond(Vector3d(1,0,0),roll)
+                                                *Quaterniond(Vector3d(0,1,0),pitch)
+                                                *Vector3d(0,0,1) <<std::endl;
+                         gzdbg<<" rotor Totoal Force: " <<rotorTotalForce<<std::endl;
+                         gzdbg<<" rotor Totoal Force Moment: " <<rotorTotalForceMoment<<std::endl;
+                         gzdbg<<" newRotorOmega: " << newRotorOmega<<std::endl;
+            }*/
+
+            //Euler integration of rotor angle
+            for(int b=0;b<BLADE_COUNT;b++)
+            {                
+                Vector3d flapAx=base_link->WorldPose().Rot()
+                    *Quaterniond(Vector3d(1,0,0),roll)
+                    *Quaterniond(Vector3d(0,1,0),pitch)
+                    *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
+                     *Vector3d(std::cos(delta_angle),-std::sin(delta_angle),0);
+
+                rotorBladeAngle[b]+=innerTimeStep*rotorOmega;
+                bladeFlapAngle[b]+=innerTimeStep*bladeOmega[b].Dot(flapAx);
+				if(bladeFlapAngle[b]>ToRad(15))
+				{
+                    gzdbg<<"dolní doraz" <<std::endl;
+					bladeFlapAngle[b]=ToRad(15);
+					bladeOmega[b]-=bladeOmega[b].Dot(flapAx)*flapAx;
+				}
+				if(bladeFlapAngle[b]<ToRad(-15))
+				{
+                    gzdbg<<"horní doraz" <<std::endl;
+					bladeFlapAngle[b]=ToRad(-15);
+					bladeOmega[b]-=bladeOmega[b].Dot(flapAx)*flapAx;
+				}
+
+            }
+			/*if(counter==DEBUG_CONST)
 		    {
-                   gzdbg <<ToDeg(flaping_angle[b])<<std::endl;
-                   gzdbg <<bladeLocalMoment<<std::endl;
-                   gzdbg <<Rblade.RotateVectorReverse(bladeAirForce)<<std::endl;
-            }
+				gzdbg << " Total Force: "<< rotorTotalForce <<std::endl;
+		    }*/
+			rotorTimeStepForce+=rotorTotalForce;
+		}              
+		rotorTimeStepForce/innerUpdates;
+
+		//compute force pos
+		if(counter==DEBUG_CONST)
+	    {
+            const Quaterniond & bodyR=base_link->WorldPose().Rot();
+
+			gzdbg << " Rotor Force: "<< bodyR.RotateVectorReverse(rotorTimeStepForce) <<std::endl;
+            /*for(int b=0;b<BLADE_COUNT;b++)
+            {
+                gzdbg << " Blade ["<< b << "]   omega: " << bodyR.RotateVectorReverse(bladeOmega[b]) << std::endl;
+                gzdbg << " Blade ["<< b << "]: " <<   bladeFlapAngle[b] <<std::endl;
+            }*/
+	    }
+        Vector3d forcePosRelToCog= rotor_pos-(base_link->GetInertial()->CoG());
+
+		base_link->AddForceAtRelativePosition(rotorTimeStepForce,forcePosRelToCog);
+
+
+
+        UpdateRotorVisualPos();
+
+        //debuging loop
+        if(counter==DEBUG_CONST)
+        {
+           /* gazebo::msgs::Vector3d msg;
+            gazebo::msgs::Set(&msg, liftForce);
+            rotorfreq_pub_->Publish(msg);*/
+
+            gzdbg<< "RPM:" << rotorOmega/2.0/PI*60 <<std::endl;
+			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
+			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
+
+         /*   gzdbg<<"============================Profile===================================="<<std::endl;
+            for(int i=-180;i<180;i++)
+                gzdbg<< i << ":" << getCL(ToRad(i))<<":"<<getCD(ToRad(i)) <<std::endl;
+            gzdbg<<"============================Profile=End================================"<<std::endl;*/
         }
 
-        rotorOmega+=2*PI/50*rotadd;
+    }
+    
+    private:
+        event::ConnectionPtr updateConnection;
+        WorldPtr world;
+        common::Time lastUpdateTime;
 
-        for(int b=0;b<BLADE_COUNT;b++)
-            rotorBladeAngle[b]+=timeStep*rotorOmega; //Euler integration of rotor angle
-		
-
-		//update rotationAxR by input
-		Rdisc=Quaterniond(Vector3d(1,0,0),roll)
-    					*Quaterniond(Vector3d(0,1,0),pitch);
-						
-
-		UpdateRotorVisualPos();
-
-		//debuging loop
-		if(counter==DEBUG_CONST)
-		{
-           /* gazebo::msgs::Vector3d msg;
-        	gazebo::msgs::Set(&msg, liftForce);
-
-        	rotorfreq_pub_->Publish(msg);*/
-
-			gzdbg << rotorOmega/2.0/PI*60 <<std::endl;
-			gzdbg <<"R: "<< roll << std::endl;
-			gzdbg <<"P: "<< pitch << std::endl;
-		}
-
-	}
-	
-	private:
-		event::ConnectionPtr updateConnection;
-		WorldPtr world;
-		common::Time lastUpdateTime;
-
-		int counter; 
-		LinkPtr base_link;
+        int counter; 
+        LinkPtr base_link;
         Vector3d rotor_pos;
-		unsigned int leftBladeVisualID;
-		unsigned int rightBladeVisualID;
-		double blade_length;
+        double blade_length;
         double blade_width;
         double blade_weight;
         double delta_angle;
@@ -263,60 +356,62 @@ namespace gazebo
         int number_of_elements;
         double element_area;
 
-		Vector3d lbladeDefaultPos;
-		Vector3d rbladeDefaultPos;
+        unsigned int bladeVisualID[BLADE_COUNT];
 
-		//rotor state		
-		Quaterniond Rdisc;
-		double rotorBladeAngle[BLADE_COUNT]; 
-		double rotorOmega; //uhlova rychlost v radianech
-        double flaping_angle[BLADE_COUNT];
+        Vector3d bladeDefaultPos;
 
-		//input
-		double roll;
-		double pitch;
+        //rotor state
+        double rotorBladeAngle[BLADE_COUNT]; 
+        double bladeFlapAngle[BLADE_COUNT];
+        Vector3d bladeOmega[BLADE_COUNT];
+        double rotorOmega;
+
+
+        //input
+        double roll;
+        double pitch;
 
         //debug
         double rotadd;
 
-		//messaging
-		transport::NodePtr node_handle;
-  		transport::SubscriberPtr control_roll_sub;
-  		transport::SubscriberPtr control_pitch_sub;
-		
+        //messaging
+        transport::NodePtr node_handle;
+          transport::SubscriberPtr control_roll_sub;
+          transport::SubscriberPtr control_pitch_sub;
+        
 
-		void UpdateRotorVisualPos()
-		{
-
-			Quaterniond rotorRot=Rdisc*Quaterniond(Vector3d(0,0,1), rotorBladeAngle[0]);
-
-			base_link->SetVisualPose(leftBladeVisualID, Pose3d(rotor_pos+rotorRot.RotateVector(lbladeDefaultPos),rotorRot));
-			base_link->SetVisualPose(rightBladeVisualID, Pose3d(rotor_pos+rotorRot.RotateVector(rbladeDefaultPos),rotorRot));
-		}
-
-
-		void OnRollCmdMsg(ConstAnyPtr &_msg)
-		{
-			roll = _msg->double_value();
-		}
-
-		void OnPitchCmdMsg(ConstAnyPtr &_msg)
-		{
-			//pitch = _msg->double_value();
-            pitch=0.0;
-            rotadd=_msg->double_value();
-		}
-
-        double getFlapCorectionAngle(double flapping_angle)
+        void UpdateRotorVisualPos()
         {
-            //aproximujeme (flapping_angle)_osa_kolma_na_list = (flaping_angle)_osa_s_delta_uhlem
-            Vector3d rotated=Quaterniond(Vector3d(1,0,0),flapping_angle)*Vector3d(1,std::sin(this->delta_angle),0);
-            return std::atan2(rotated.Z(),1);   
+            for(int b=0;b<BLADE_COUNT;b++)
+            {
+                Quaterniond bladeRot=/*base_link->WorldPose().Rot()
+                    */Quaterniond(Vector3d(1,0,0),roll)
+                    *Quaterniond(Vector3d(0,1,0),pitch)
+                    *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
+                     *Quaterniond(Vector3d(std::cos(delta_angle),-std::sin(delta_angle),0),bladeFlapAngle[b]);   
+            
+                base_link->SetVisualPose(bladeVisualID[b], Pose3d(rotor_pos+bladeRot.RotateVector(bladeDefaultPos),bladeRot));
+            }           
+        }
+
+
+        void OnRollCmdMsg(ConstAnyPtr &_msg)
+        {
+            roll = _msg->double_value();
+            //bladeFlapAngle[0]=_msg->double_value();
+        }
+
+        void OnPitchCmdMsg(ConstAnyPtr &_msg)
+        {
+            pitch = _msg->double_value();
+            //pitch=0.0;
+            //rotadd=_msg->double_value();
         }
 
         double getCL(double alpha)
         {
-            double alpha_degree=alpha*360.0/(2.0*3.141592);
+            //return 0.0;
+            double alpha_degree=ToDeg(alpha);
             double CL=0.0;
             if(alpha_degree > -10  && alpha_degree <= -5)
                 CL=-0.5;
@@ -329,8 +424,7 @@ namespace gazebo
 
         double getCD(double alpha)
         {
-            
-            double alpha_degree=alpha*360.0/(2.0*3.141592);
+            double alpha_degree=ToDeg(alpha);
             double CD=0.0;
             if(alpha_degree > -10  && alpha_degree <= -5)
                 CD=alpha_degree*(-0.016)-0.06;
@@ -341,7 +435,7 @@ namespace gazebo
             if(alpha_degree > 7.5 && alpha_degree <= 15)
                 CD=alpha_degree*0.008-0.05;
             if(alpha_degree > 15 && alpha_degree <= 20)
-                CD=alpha_degree*0.2-2.3;
+                CD=alpha_degree*0.026-0.32;
             return CD;
         };
 
@@ -351,6 +445,6 @@ namespace gazebo
 
   };
 
-  GZ_REGISTER_MODEL_PLUGIN(	RotorPlugin )
+  GZ_REGISTER_MODEL_PLUGIN(    RotorPlugin )
 }
 #endif
