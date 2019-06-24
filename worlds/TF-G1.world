@@ -20,10 +20,61 @@
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
    </include>-->
-  <include>
+  <!--<include>
       <uri>model://auto-G2</uri>
       <pose>0 0 0.2 0 0 0</pose>
-  </include>
+  </include>-->
+
+
+   <!-- autogyro pull test-->
+<model name='pull_test'>
+       <include>
+          <uri>model://auto-G2</uri>
+          <pose>0 0 0.2 0 0 0</pose>
+       </include>
+       <include>
+          <uri>model://autogyro/moving_box</uri>
+          <name>box</name>
+          <pose>10 0 0 0 0 0</pose>
+       </include>
+	   <model name='pole'>
+		  <pose> 5.5 0 0.2 0 0 0 </pose>
+		  <link name='link'>
+		     <visual name='visual'>
+		        <geometry>
+		           <box>
+            	      <size>9.9 0.05 0.05</size>
+          	       </box>
+		        </geometry>
+		     </visual>
+			  <inertial>
+				<pose>0 0 0 0 0 0</pose>
+				<mass>0.05</mass>
+				<inertia>
+				  <ixx>0.0001</ixx>
+				  <ixy>0</ixy>
+				  <ixz>0</ixz>
+				  <iyy>0.0001</iyy>
+				  <iyz>0</iyz>
+				  <izz>0.0001</izz>
+				</inertia>
+			  </inertial>
+		  </link>
+		</model>	
+       <joint name='car_connection' type='ball'>
+          <parent>box::link</parent>
+          <child>pole::link</child>
+          <pose>5 0 0 0 0 0 </pose>
+       </joint>
+	  <joint name='autogyro_connection' type='ball'>
+          <parent>pole::link</parent>
+          <child>autogyro::base_link</child>
+          <pose>0.5 0 0 0 0 0 </pose>
+       </joint>
+       <self_collide>1</self_collide>
+</model>
+
+
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
  <!--  <model name='hanging_autogyro'>
