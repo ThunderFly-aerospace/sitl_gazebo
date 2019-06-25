@@ -27,7 +27,7 @@
 
 
    <!-- autogyro pull test-->
-<model name='pull_test'>
+<!--<model name='pull_test'>
        <include>
           <uri>model://auto-G2</uri>
           <pose>0 0 0.2 0 0 0</pose>
@@ -38,7 +38,7 @@
           <pose>10 0 0 0 0 0</pose>
        </include>
 	   <model name='pole'>
-		  <pose> 5.5 0 0.2 0 0 0 </pose>
+		  <pose> 5.5 0 0.25 0 0 0 </pose>
 		  <link name='link'>
 		     <visual name='visual'>
 		        <geometry>
@@ -65,15 +65,54 @@
           <parent>box::link</parent>
           <child>pole::link</child>
           <pose>5 0 0 0 0 0 </pose>
+          <physics>
+            <ode>
+              <limit>
+                <cfm>0.000000</cfm>
+                <erp>0.800000</erp>
+              </limit>
+            </ode>
+          </physics>
        </joint>
 	  <joint name='autogyro_connection' type='ball'>
           <parent>pole::link</parent>
           <child>autogyro::base_link</child>
-          <pose>0.5 0 0 0 0 0 </pose>
+          <pose>0.25 0 0.05 0 0 0 </pose>
+          <physics>
+            <ode>
+              <limit>
+                <cfm>0.000000</cfm>
+                <erp>0.800000</erp>
+              </limit>
+            </ode>
+          </physics>
        </joint>
        <self_collide>1</self_collide>
 </model>
+-->
 
+
+   <!-- autogyro on moving mox -->
+ <model name='moving_box'>
+       <include>
+          <uri>model://auto-G2</uri>
+          <pose>0 0 1.2 0 0 0</pose>
+       </include>
+       <include>
+          <uri>model://autogyro/moving_box</uri>
+          <name>box</name>
+          <pose>0 0 0 0 0 0</pose>
+       </include>
+       <joint name='car_connection' type='fixed'>
+          <parent>box::link</parent>
+          <child>autogyro::base_link</child>
+          <pose>0 0 0 0 0 0 </pose>-->
+          <!--<axis>
+            <xyz>1 0 0</xyz>
+          </axis>-->
+        </joint>
+        <self_collide>1</self_collide>
+    </model>
 
 
    <!-- hanging autogyro - joint to umísťuje do souřadnice childu -->
@@ -182,27 +221,7 @@
 		</plugin>
    </model>-->
  
-   <!-- autogyro on moving mox -->
- <!-- <model name='moving_box'>
-       <include>
-          <uri>model://auto-G2</uri>
-          <pose>0 0 1.2 0 0 0</pose>
-       </include>
-       <include>
-          <uri>model://autogyro/moving_box</uri>
-          <name>box</name>
-          <pose>0 0 0 0 0 0</pose>
-       </include>
-       <joint name='car_connection' type='fixed'>
-          <parent>box::link</parent>
-          <child>autogyro::base_link</child>
-          <pose>0 0 0 0 0 0 </pose>-->
-          <!--<axis>
-            <xyz>1 0 0</xyz>
-          </axis>-->
-      <!--  </joint>
-        <self_collide>1</self_collide>
-    </model>-->
+
 
 
 

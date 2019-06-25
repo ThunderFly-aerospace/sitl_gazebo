@@ -68,7 +68,8 @@ namespace gazebo
             bladeFlapAngle[b]=ToRad(15);
             bladeOmega[b]=base_link->WorldPose().Rot()*(rotorOmega*Vector3d(0,0,1));
         }
-        bladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);            
+        bladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
+        flapAxDefault=Vector3d(std::cos(ToRad(delta_angle)),std::sin(ToRad(delta_angle)),0);          
 
         pitch=0.0;//ToRad(-12);
         roll=0.0;
@@ -91,6 +92,9 @@ namespace gazebo
 
         /*rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);*/
 
+        begin_angle=-1;
+        last_debug=this->world->SimTime();
+
     }
 
     virtual void OnUpdate()
@@ -105,7 +109,21 @@ namespace gazebo
         common::Time currentTime=this->world->SimTime();
         double timeStep=currentTime.Double() - this->lastUpdateTime.Double();
         this->lastUpdateTime=currentTime;
+
+      // gzdbg<<currentTime.Double() <<std::endl;
+      // gzdbg<<last_debug.Double() <<std::endl;
+
+       if(begin_angle<0 && (currentTime.Double()-last_debug.Double())>1)
+       {
+            gzdbg<<"Debug one round "<<std::endl;
+            begin_angle=rotorBladeAngle[0];
+       }
             
+       if(begin_angle>0 && (rotorBladeAngle[0]-begin_angle)>2*PI)
+       {
+            begin_angle=-1.0;
+            last_debug=currentTime;
+       }
 
 
         const Vector3d & rotorLinVel=base_link->WorldLinearVel(rotor_pos);
@@ -143,7 +161,7 @@ namespace gazebo
                     *Quaterniond(Vector3d(1,0,0),roll)
                      *Quaterniond(Vector3d(0,1,0),pitch)
                      *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
-                     *Quaterniond(Vector3d(std::cos(delta_angle),-std::sin(delta_angle),0),bladeFlapAngle[b]);
+                     *Quaterniond(flapAxDefault,bladeFlapAngle[b]);
 
                 Vector3d forward=Rblade*Vector3d(1,0,0);//musí být pravotočivá soustava, asi
                 Vector3d upward=Rblade*Vector3d(0,0,1);
@@ -188,7 +206,7 @@ namespace gazebo
                     *Quaterniond(Vector3d(1,0,0),roll)
                     *Quaterniond(Vector3d(0,1,0),pitch)
                     *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
-                     *Vector3d(std::cos(delta_angle),-std::sin(delta_angle),0);
+                     *flapAxDefault;
 
                 double omega=bladeOmega[b].Length();
                 Vector3d omegaAx=bladeOmega[b]/omega;
@@ -230,6 +248,9 @@ namespace gazebo
 
                 rotorTotalForce+=bladeTotalForce;
                 rotorTotalForceMoment+=bladeTotalForceMoment;
+    
+               
+
 
                /* if(counter==DEBUG_CONST)
 	            {
@@ -275,7 +296,7 @@ namespace gazebo
                     *Quaterniond(Vector3d(1,0,0),roll)
                     *Quaterniond(Vector3d(0,1,0),pitch)
                     *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
-                     *Vector3d(std::cos(delta_angle),-std::sin(delta_angle),0);
+                     *flapAxDefault;
 
                 rotorBladeAngle[b]+=innerTimeStep*rotorOmega;
                 bladeFlapAngle[b]+=innerTimeStep*bladeOmega[b].Dot(flapAx);
@@ -293,13 +314,17 @@ namespace gazebo
 				}
 
             }
-			/*if(counter==DEBUG_CONST)
+			
+            /*if(begin_angle>0)
 		    {
-				gzdbg << " Total Force: "<< rotorTotalForce <<std::endl;
+                double angle =rotorBladeAngle[0];
+                while(angle>2*PI)
+                    angle-=2*PI;
+				gzdbg<< "Angle: " << angle << " Total Force: "<< rotorTotalForce <<std::endl;
 		    }*/
 			rotorTimeStepForce+=rotorTotalForce;
 		}              
-		rotorTimeStepForce/innerUpdates;
+		rotorTimeStepForce/=innerUpdates;
 
 		//compute force pos
 		if(counter==DEBUG_CONST)
@@ -345,6 +370,9 @@ namespace gazebo
         WorldPtr world;
         common::Time lastUpdateTime;
 
+        common::Time last_debug;
+        double begin_angle;
+
         int counter; 
         LinkPtr base_link;
         Vector3d rotor_pos;
@@ -359,6 +387,7 @@ namespace gazebo
         unsigned int bladeVisualID[BLADE_COUNT];
 
         Vector3d bladeDefaultPos;
+        Vector3d flapAxDefault;
 
         //rotor state
         double rotorBladeAngle[BLADE_COUNT]; 
@@ -388,7 +417,7 @@ namespace gazebo
                     */Quaterniond(Vector3d(1,0,0),roll)
                     *Quaterniond(Vector3d(0,1,0),pitch)
                     *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
-                     *Quaterniond(Vector3d(std::cos(delta_angle),-std::sin(delta_angle),0),bladeFlapAngle[b]);   
+                     *Quaterniond(flapAxDefault,bladeFlapAngle[b]);   
             
                 base_link->SetVisualPose(bladeVisualID[b], Pose3d(rotor_pos+bladeRot.RotateVector(bladeDefaultPos),bladeRot));
             }           
