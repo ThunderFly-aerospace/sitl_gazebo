@@ -71,9 +71,14 @@ namespace gazebo
         bladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
         flapAxDefault=Vector3d(std::cos(ToRad(delta_angle)),std::sin(ToRad(delta_angle)),0);          
 
-        pitch=0.0;//ToRad(-12);
+        pitch=ToRad(-7);
         roll=0.0;
        
+        omegaStabil=0;
+        lastRotorOmega=rotorOmega;
+        up=true;
+        
+
         UpdateRotorVisualPos();
 
         this->updateConnection = event::Events::ConnectWorldUpdateBegin(
@@ -115,7 +120,7 @@ namespace gazebo
 
        if(begin_angle<0 && (currentTime.Double()-last_debug.Double())>1)
        {
-            gzdbg<<"Debug one round "<<std::endl;
+           // gzdbg<<"Debug one round "<<std::endl;
             begin_angle=rotorBladeAngle[0];
        }
             
@@ -302,20 +307,20 @@ namespace gazebo
                 bladeFlapAngle[b]+=innerTimeStep*bladeOmega[b].Dot(flapAx);
 				if(bladeFlapAngle[b]>ToRad(15))
 				{
-                    gzdbg<<"dolní doraz" <<std::endl;
+                    //gzdbg<<"dolní doraz" <<std::endl;
 					bladeFlapAngle[b]=ToRad(15);
 					bladeOmega[b]-=bladeOmega[b].Dot(flapAx)*flapAx;
 				}
 				if(bladeFlapAngle[b]<ToRad(-15))
 				{
-                    gzdbg<<"horní doraz" <<std::endl;
+                    //gzdbg<<"horní doraz" <<std::endl;
 					bladeFlapAngle[b]=ToRad(-15);
 					bladeOmega[b]-=bladeOmega[b].Dot(flapAx)*flapAx;
 				}
 
             }
 			
-            /*if(begin_angle>0)
+           /* if(begin_angle>0)
 		    {
                 double angle =rotorBladeAngle[0];
                 while(angle>2*PI)
@@ -331,7 +336,7 @@ namespace gazebo
 	    {
             const Quaterniond & bodyR=base_link->WorldPose().Rot();
 
-			gzdbg << " Rotor Force: "<< bodyR.RotateVectorReverse(rotorTimeStepForce) <<std::endl;
+			//gzdbg << " Rotor Force: "<< bodyR.RotateVectorReverse(rotorTimeStepForce) <<std::endl;
             /*for(int b=0;b<BLADE_COUNT;b++)
             {
                 gzdbg << " Blade ["<< b << "]   omega: " << bodyR.RotateVectorReverse(bladeOmega[b]) << std::endl;
@@ -342,7 +347,43 @@ namespace gazebo
 
 		base_link->AddForceAtRelativePosition(rotorTimeStepForce,forcePosRelToCog);
 
-
+        if(counter==DEBUG_CONST )
+        {
+            if(fabs(rotorOmega/2.0/PI*60-lastRotorOmega/2.0/PI*60)<2)
+            {
+                omegaStabil++;
+                if(omegaStabil==10)
+                {
+                    const Quaterniond & bodyR=base_link->WorldPose().Rot();
+                    gzdbg << "pitch: " << ToDeg(pitch) << " RPM: " << rotorOmega/2.0/PI*60 << " Totoal Force: " << bodyR.RotateVectorReverse(rotorTimeStepForce) << std::endl;
+                    if(up)
+                    {
+                        pitch-=ToRad(1);
+                        if(pitch<-90)
+                        {
+                            pitch=90;
+                            up=false;
+                        }
+                    }
+                    else
+                    {
+                        pitch+=ToRad(1);
+                        if(pitch>0)
+                        {
+                            pitch=0;
+                            up=true;
+                        }
+                    }
+                    omegaStabil=0;
+                    lastRotorOmega=rotorOmega;
+                }
+            }
+            else
+            {
+                omegaStabil=0;
+                lastRotorOmega=rotorOmega;
+            }
+        }
 
         UpdateRotorVisualPos();
 
@@ -353,7 +394,7 @@ namespace gazebo
             gazebo::msgs::Set(&msg, liftForce);
             rotorfreq_pub_->Publish(msg);*/
 
-            gzdbg<< "RPM:" << rotorOmega/2.0/PI*60 <<std::endl;
+            //gzdbg<< "RPM:" << rotorOmega/2.0/PI*60 <<std::endl;
 			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
 			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
 
@@ -395,6 +436,9 @@ namespace gazebo
         Vector3d bladeOmega[BLADE_COUNT];
         double rotorOmega;
 
+        double lastRotorOmega;
+        int omegaStabil;
+        bool up;
 
         //input
         double roll;
@@ -426,13 +470,13 @@ namespace gazebo
 
         void OnRollCmdMsg(ConstAnyPtr &_msg)
         {
-            roll = _msg->double_value();
+            //roll = _msg->double_value();
             //bladeFlapAngle[0]=_msg->double_value();
         }
 
         void OnPitchCmdMsg(ConstAnyPtr &_msg)
         {
-            pitch = _msg->double_value();
+            //pitch = _msg->double_value();
             //pitch=0.0;
             //rotadd=_msg->double_value();
         }

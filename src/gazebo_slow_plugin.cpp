@@ -71,7 +71,7 @@ namespace gazebo
 		//debuging loop
 		if(counter==DEBUG_CONST)
 		{
-            gzdbg << "Braking force: " << force <<"\n";
+            //gzdbg << "Braking force: " << force <<"\n";
 		}
 	}
 	
