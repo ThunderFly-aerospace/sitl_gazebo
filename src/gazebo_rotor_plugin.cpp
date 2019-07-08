@@ -355,22 +355,22 @@ namespace gazebo
                 if(omegaStabil==10)
                 {
                     const Quaterniond & bodyR=base_link->WorldPose().Rot();
-                    gzdbg << "pitch: " << ToDeg(pitch) << " RPM: " << rotorOmega/2.0/PI*60 << " Totoal Force: " << bodyR.RotateVectorReverse(rotorTimeStepForce) << std::endl;
+                    gzdbg << "pitch: " << ToDeg(-pitch) << " RPM: " << rotorOmega/2.0/PI*60 << " Totoal Force: " << bodyR.RotateVectorReverse(rotorTimeStepForce) << std::endl;
                     if(up)
                     {
                         pitch-=ToRad(1);
-                        if(pitch<-90)
+                        if(pitch<ToRad(-90))
                         {
-                            pitch=90;
+                            pitch=ToRad(-90);
                             up=false;
                         }
                     }
                     else
                     {
                         pitch+=ToRad(1);
-                        if(pitch>0)
+                        if(pitch>ToRad(0))
                         {
-                            pitch=0;
+                            pitch=ToRad(0);
                             up=true;
                         }
                     }
@@ -398,10 +398,10 @@ namespace gazebo
 			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
 			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
 
-         /*   gzdbg<<"============================Profile===================================="<<std::endl;
+            gzdbg<<"============================Profile===================================="<<std::endl;
             for(int i=-180;i<180;i++)
                 gzdbg<< i << ":" << getCL(ToRad(i))<<":"<<getCD(ToRad(i)) <<std::endl;
-            gzdbg<<"============================Profile=End================================"<<std::endl;*/
+            gzdbg<<"============================Profile=End================================"<<std::endl;
         }
 
     }
