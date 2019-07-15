@@ -392,6 +392,7 @@ namespace gazebo
 
 		base_link->AddForceAtRelativePosition(rotorTimeStepForce,forcePosRelToCog);
 
+        //rotor polar test
         if(counter==DEBUG_CONST )
         {
             if(fabs(rotorOmega/2.0/PI*60-lastRotorOmega/2.0/PI*60)<2)
@@ -443,7 +444,7 @@ namespace gazebo
 			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
 			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
 
-/*          gzdbg<<"============================Profile===================================="<<std::endl;
+       /*   gzdbg<<"============================Profile===================================="<<std::endl;
             for(int i=-180;i<180;i++)
                 gzdbg<< i << ":" << getCL(ToRad(i))<<":"<<getCD(ToRad(i)) <<std::endl;
             gzdbg<<"============================Profile=End================================"<<std::endl;*/
