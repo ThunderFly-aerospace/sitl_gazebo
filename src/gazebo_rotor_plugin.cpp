@@ -70,12 +70,14 @@ namespace gazebo
         //load polar
         sdf::ElementPtr polar=_sdf->GetElement("blade_polar");
         sdf::ElementPtr polar_point=polar->GetFirstElement();
-        int blade_polar_point_count=0;
+        blade_polar_point_count=0;
         while(polar_point!= sdf::ElementPtr(nullptr))
         {
             blade_polar_point_count++;
             polar_point=polar_point->GetNextElement();
         }
+
+        gzdbg << "Loading polar approx with " << blade_polar_point_count << "points." <<std::endl;
 
         this->blade_polar_angles =new double[blade_polar_point_count];
         this->blade_polar_CL=new double[blade_polar_point_count];;
@@ -441,7 +443,7 @@ namespace gazebo
 			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
 			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
 
-            /*gzdbg<<"============================Profile===================================="<<std::endl;
+/*          gzdbg<<"============================Profile===================================="<<std::endl;
             for(int i=-180;i<180;i++)
                 gzdbg<< i << ":" << getCL(ToRad(i))<<":"<<getCD(ToRad(i)) <<std::endl;
             gzdbg<<"============================Profile=End================================"<<std::endl;*/
@@ -534,36 +536,18 @@ namespace gazebo
         {
             //return 0.0;
             double alpha_degree=ToDeg(alpha);
-            double CL=0.0;
-            if(alpha_degree > -10  && alpha_degree <= -5)
-                CL=-0.5;
-            if(alpha_degree > -5  && alpha_degree <= 7.5)
-                CL=alpha_degree*0.136+0.18;
-            if(alpha_degree > 7.5 && alpha_degree < 20)
-                CL=1.2;
-            return CL;
+            return linearApprox(alpha_degree,blade_polar_angles,blade_polar_CL,blade_polar_point_count);
         };
 
         double getCD(double alpha)
         {
             double alpha_degree=ToDeg(alpha);
-            double CD=0.0;
-            if(alpha_degree > -10  && alpha_degree <= -5)
-                CD=alpha_degree*(-0.016)-0.06;
-            if(alpha_degree > -5  && alpha_degree <= 0)
-                CD=alpha_degree*(-0.002)+0.01;
-            if(alpha_degree > 0 && alpha_degree <= 7.5)
-                CD=0.01;
-            if(alpha_degree > 7.5 && alpha_degree <= 15)
-                CD=alpha_degree*0.008-0.05;
-            if(alpha_degree > 15 && alpha_degree <= 20)
-                CD=alpha_degree*0.026-0.32;
-            return CD;
+            return linearApprox(alpha_degree,blade_polar_angles,blade_polar_CD,blade_polar_point_count);
         };
 
-		double linearApprox(double x, double *xx, double *yy, int ylen)
+		double linearApprox(double x, double *xx, double *yy, int len)
 		{
-			if(ylen<=0)
+			if(len<=0)
 			{
 				gzdbg<<"Bad lenght of array.."<<std::endl;
 				return 0.0;
@@ -571,7 +555,7 @@ namespace gazebo
 			
 			if(x<xx[0])
 			{
-				gzdbg<<"lower than first element" <<std::endl;
+				//gzdbg<<"lower than first element" <<std::endl;
 				return yy[0];
 			}
 
@@ -580,9 +564,10 @@ namespace gazebo
 				i++;
 
 			if(i<len-1)
-				return yy[i]+(xx[i]-x)*((yy[i+1]-yy[i])/(xx[i+1]-xx[i]));
-			else
+				return yy[i]+(x-xx[i])*((yy[i+1]-yy[i])/(xx[i+1]-xx[i]));
+			else            
 				return yy[len-1];
+
 
 		};
 

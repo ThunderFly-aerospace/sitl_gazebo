@@ -105,8 +105,47 @@
         <element_count>30</element_count>
         <air_density>1.2041</air_density>
         <blade_polar>
-            <point angle="0" CL="0.1" CD="0.2"/>
-            <point angle="1" CL="1.1" CD="1.2"/>
+<point angle="-20" CL="-4" CD="4"/>
+<point angle="-19" CL="-3.4295" CD="3.61"/>
+<point angle="-18" CL="-2.916" CD="3.24"/>
+<point angle="-17" CL="-2.4565" CD="2.89"/>
+<point angle="-16" CL="-2.048" CD="2.56"/>
+<point angle="-15" CL="-1.6875" CD="2.25"/>
+<point angle="-14" CL="-1.372" CD="1.96"/>
+<point angle="-13" CL="-1.0985" CD="1.69"/>
+<point angle="-12" CL="-0.864" CD="1.44"/>
+<point angle="-11" CL="-0.6655" CD="1.21"/>
+<point angle="-10" CL="-0.5" CD="1"/>
+<point angle="-9" CL="-0.3645" CD="0.81"/>
+<point angle="-8" CL="-0.256" CD="0.64"/>
+<point angle="-7" CL="-0.1715" CD="0.49"/>
+<point angle="-6" CL="-0.108" CD="0.36"/>
+<point angle="-5" CL="-0.0625" CD="0.25"/>
+<point angle="-4" CL="-0.032" CD="0.16"/>
+<point angle="-3" CL="-0.0135" CD="0.09"/>
+<point angle="-2" CL="-0.004" CD="0.04"/>
+<point angle="-1" CL="-0.0005" CD="0.01"/>
+<point angle="0" CL="0" CD="0"/>
+<point angle="1" CL="0.0005" CD="0.01"/>
+<point angle="2" CL="0.004" CD="0.04"/>
+<point angle="3" CL="0.0135" CD="0.09"/>
+<point angle="4" CL="0.032" CD="0.16"/>
+<point angle="5" CL="0.0625" CD="0.25"/>
+<point angle="6" CL="0.108" CD="0.36"/>
+<point angle="7" CL="0.1715" CD="0.49"/>
+<point angle="8" CL="0.256" CD="0.64"/>
+<point angle="9" CL="0.3645" CD="0.81"/>
+<point angle="10" CL="0.5" CD="1"/>
+<point angle="11" CL="0.6655" CD="1.21"/>
+<point angle="12" CL="0.864" CD="1.44"/>
+<point angle="13" CL="1.0985" CD="1.69"/>
+<point angle="14" CL="1.372" CD="1.96"/>
+<point angle="15" CL="1.6875" CD="2.25"/>
+<point angle="16" CL="2.048" CD="2.56"/>
+<point angle="17" CL="2.4565" CD="2.89"/>
+<point angle="18" CL="2.916" CD="3.24"/>
+<point angle="19" CL="3.4295" CD="3.61"/>
+<point angle="20" CL="4" CD="4"/>
         </blade_polar>
 	</plugin>
 
