@@ -327,17 +327,17 @@ namespace gazebo
             }
 
 
-            /*if(counter==DEBUG_CONST)
+            if(counter==DEBUG_CONST)
             {      
                    //gzdbg <<"angle: " << rotorBladeAngle[0]
-                         gzdbg<<"rotor Ax: " << base_link->WorldPose().Rot()
+                       /*  gzdbg<<"rotor Ax: " << base_link->WorldPose().Rot()
                                                 *Quaterniond(Vector3d(1,0,0),roll)
                                                 *Quaterniond(Vector3d(0,1,0),pitch)
                                                 *Vector3d(0,0,1) <<std::endl;
                          gzdbg<<" rotor Totoal Force: " <<rotorTotalForce<<std::endl;
                          gzdbg<<" rotor Totoal Force Moment: " <<rotorTotalForceMoment<<std::endl;
-                         gzdbg<<" newRotorOmega: " << newRotorOmega<<std::endl;
-            }*/
+                         gzdbg<<" RotorOmega: " << rotorOmega<<std::endl;*/
+            }
 
             //Euler integration of rotor angle
             for(int b=0;b<BLADE_COUNT;b++)
@@ -439,7 +439,7 @@ namespace gazebo
             gazebo::msgs::Set(&msg, liftForce);
             rotorfreq_pub_->Publish(msg);*/
 
-            //gzdbg<< "RPM:" << rotorOmega/2.0/PI*60 <<std::endl;
+            gzdbg<< "RPM:" << rotorOmega/2.0/PI*60 <<std::endl;
 			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
 			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
 
