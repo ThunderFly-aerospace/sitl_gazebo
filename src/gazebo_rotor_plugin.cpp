@@ -30,11 +30,22 @@ namespace gazebo
   {
 
     public: 
-    RotorPlugin() {}
+    RotorPlugin() 
+    {
+        blade_polar_angles=nullptr;
+        blade_polar_CL=nullptr;
+        blade_polar_CD=nullptr;
+    }
 
     ~RotorPlugin()
     {
         updateConnection->~Connection(); //??
+        if(blade_polar_angles)
+            delete [] blade_polar_angles;
+        if(blade_polar_CL)
+            delete [] blade_polar_CL;
+        if(blade_polar_CD)
+            delete [] blade_polar_CD;      
     }
 
     virtual void Load(physics::ModelPtr model, sdf::ElementPtr _sdf)
@@ -54,6 +65,40 @@ namespace gazebo
 
         base_link->VisualId(_sdf->GetElement("right_blade_visual")->Get<std::string>(), bladeVisualID[0]);         
         base_link->VisualId(_sdf->GetElement("left_blade_visual")->Get<std::string>(), bladeVisualID[1]);
+
+
+        //load polar
+        sdf::ElementPtr polar=_sdf->GetElement("blade_polar");
+        sdf::ElementPtr polar_point=polar->GetFirstElement();
+        int blade_polar_point_count=0;
+        while(polar_point!= sdf::ElementPtr(nullptr))
+        {
+            blade_polar_point_count++;
+            polar_point=polar_point->GetNextElement();
+        }
+
+        this->blade_polar_angles =new double[blade_polar_point_count];
+        this->blade_polar_CL=new double[blade_polar_point_count];;
+        this->blade_polar_CD=new double[blade_polar_point_count];;
+
+        int p=0;
+        polar_point=polar->GetFirstElement();
+        while(polar_point!= sdf::ElementPtr(nullptr))
+        {
+            if(!polar_point->GetAttribute("angle")->Get(blade_polar_angles[p])
+                || !polar_point->GetAttribute("CL")->Get(blade_polar_CL[p])
+                || !polar_point->GetAttribute("CD")->Get(blade_polar_CD[p])
+              )
+            {
+                gzdbg << "Error loading Polar point: " << p  << std::endl;
+            }
+
+            polar_point=polar_point->GetNextElement();
+            p++;
+        }
+
+       // for(int i=0;i<blade_polar_point_count;i++)
+       //     gzdbg << blade_polar_angles[i] << " " << blade_polar_CL[i] << " " << blade_polar_CD[i] << std::endl; 
 
         
         this->world=model->GetWorld();
@@ -255,8 +300,6 @@ namespace gazebo
                 rotorTotalForceMoment+=bladeTotalForceMoment;
     
                
-
-
                /* if(counter==DEBUG_CONST)
 	            {
                     gzdbg << " Blade ["<< b << "]   force: " << Rblade.RotateVectorReverse(bladeTotalForce) << std::endl;
@@ -398,10 +441,10 @@ namespace gazebo
 			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
 			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
 
-            gzdbg<<"============================Profile===================================="<<std::endl;
+            /*gzdbg<<"============================Profile===================================="<<std::endl;
             for(int i=-180;i<180;i++)
                 gzdbg<< i << ":" << getCL(ToRad(i))<<":"<<getCD(ToRad(i)) <<std::endl;
-            gzdbg<<"============================Profile=End================================"<<std::endl;
+            gzdbg<<"============================Profile=End================================"<<std::endl;*/
         }
 
     }
@@ -422,6 +465,12 @@ namespace gazebo
         double blade_weight;
         double delta_angle;
         double air_density;
+
+        int blade_polar_point_count;
+        double *blade_polar_angles;
+        double *blade_polar_CL;
+        double *blade_polar_CD;
+
         int number_of_elements;
         double element_area;
 

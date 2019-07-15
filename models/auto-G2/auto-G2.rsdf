@@ -153,6 +153,10 @@
 		<right_blade_visual>rightBlade</right_blade_visual>
         <element_count>30</element_count>
         <air_density>1.2041</air_density>
+        <blade_polar>
+            <point angle="0" CL="0.1" CD="0.2"/>
+            <point angle="1" CL="1.1" CD="1.2"/>
+        </blade_polar>
 	</plugin>
 
     <plugin name="slow" filename="libgazebo_slow_plugin.so">
