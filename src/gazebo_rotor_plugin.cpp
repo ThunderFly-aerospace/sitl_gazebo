@@ -398,11 +398,11 @@ namespace gazebo
 			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
 			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
 
-            gzdbg<<"============================Profile===================================="<<std::endl;
+           /* gzdbg<<"============================Profile===================================="<<std::endl;
             for(int i=-180;i<180;i++)
                 gzdbg<< i << ":" << getCL(ToRad(i))<<":"<<getCD(ToRad(i)) <<std::endl;
             gzdbg<<"============================Profile=End================================"<<std::endl;
-        }
+        */}
 
     }
     
@@ -511,6 +511,31 @@ namespace gazebo
                 CD=alpha_degree*0.026-0.32;
             return CD;
         };
+
+		double linearApprox(double x, double *xx, double *yy, int ylen)
+		{
+			if(ylen<=0)
+			{
+				gzdbg<<"Bad lenght of array.."<<std::endl;
+				return 0.0;
+			}
+			
+			if(x<xx[0])
+			{
+				gzdbg<<"lower than first element" <<std::endl;
+				return yy[0];
+			}
+
+			int i=0;
+			while( i<len-1 && !(x>=xx[i] && x< xx[i+1]))
+				i++;
+
+			if(i<len-1)
+				return yy[i]+(xx[i]-x)*((yy[i+1]-yy[i])/(xx[i+1]-xx[i]));
+			else
+				return yy[len-1];
+
+		};
 
      /*   transport::NodePtr node_handle_;
         transport::PublisherPtr rotorfreq_pub_;*/
