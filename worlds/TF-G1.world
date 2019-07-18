@@ -20,7 +20,7 @@
       <uri>model://autogyro</uri>
       <pose>0 0 0.2 0 0 0</pose>
    </include>-->
-  <!--<include>
+<!--  <include>
       <uri>model://auto-G2</uri>
       <pose>0 0 0.2 0 0 0</pose>
   </include>-->

@@ -58,6 +58,7 @@ namespace gazebo
         this->blade_length=_sdf->GetElement("blade_length")->Get<double>();
         this->blade_width=_sdf->GetElement("blade_width")->Get<double>();
         this->blade_weight=_sdf->GetElement("blade_weight")->Get<double>();
+        this->collective_angle=ToRad(_sdf->GetElement("blade_collective")->Get<double>());
         this->delta_angle=ToRad(_sdf->GetElement("blade_delta")->Get<double>());
         this->air_density=_sdf->Get<double>("air_density");
         this->number_of_elements=_sdf->Get<int>("element_count");;
@@ -83,10 +84,13 @@ namespace gazebo
         this->blade_polar_CL=new double[blade_polar_point_count];;
         this->blade_polar_CD=new double[blade_polar_point_count];;
 
+
+
         int p=0;
         polar_point=polar->GetFirstElement();
         while(polar_point!= sdf::ElementPtr(nullptr))
         {
+            //TODO: tahle podmínka je blbě, pokud atribut neexistuje tak to hodí SEGFAULT (SIGSEGV)
             if(!polar_point->GetAttribute("angle")->Get(blade_polar_angles[p])
                 || !polar_point->GetAttribute("CL")->Get(blade_polar_CL[p])
                 || !polar_point->GetAttribute("CD")->Get(blade_polar_CD[p])
@@ -98,6 +102,8 @@ namespace gazebo
             polar_point=polar_point->GetNextElement();
             p++;
         }
+
+        gzdbg << "Polar loaded." <<std::endl;
 
        // for(int i=0;i<blade_polar_point_count;i++)
        //     gzdbg << blade_polar_angles[i] << " " << blade_polar_CL[i] << " " << blade_polar_CD[i] << std::endl; 
@@ -116,7 +122,7 @@ namespace gazebo
             bladeOmega[b]=base_link->WorldPose().Rot()*(rotorOmega*Vector3d(0,0,1));
         }
         bladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
-        flapAxDefault=Vector3d(std::cos(ToRad(delta_angle)),std::sin(ToRad(delta_angle)),0);          
+        flapAxDefault=Vector3d(std::cos(delta_angle),std::sin(delta_angle),0);          
 
         pitch=ToRad(-7);
         roll=0.0;
@@ -213,7 +219,8 @@ namespace gazebo
                     *Quaterniond(Vector3d(1,0,0),roll)
                      *Quaterniond(Vector3d(0,1,0),pitch)
                      *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
-                     *Quaterniond(flapAxDefault,bladeFlapAngle[b]);
+                     *Quaterniond(flapAxDefault,bladeFlapAngle[b])
+                     *Quaterniond(bladeDefaultPos,collective_angle);
 
                 Vector3d forward=Rblade*Vector3d(1,0,0);//musí být pravotočivá soustava, asi
                 Vector3d upward=Rblade*Vector3d(0,0,1);
@@ -467,6 +474,7 @@ namespace gazebo
         double blade_width;
         double blade_weight;
         double delta_angle;
+        double collective_angle;
         double air_density;
 
         int blade_polar_point_count;
@@ -513,7 +521,8 @@ namespace gazebo
                     */Quaterniond(Vector3d(1,0,0),roll)
                     *Quaterniond(Vector3d(0,1,0),pitch)
                     *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
-                     *Quaterniond(flapAxDefault,bladeFlapAngle[b]);   
+                    *Quaterniond(flapAxDefault,bladeFlapAngle[b])
+                    *Quaterniond(bladeDefaultPos,collective_angle);   
             
                 base_link->SetVisualPose(bladeVisualID[b], Pose3d(rotor_pos+bladeRot.RotateVector(bladeDefaultPos),bladeRot));
             }           
