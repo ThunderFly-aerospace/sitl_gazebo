@@ -95,6 +95,8 @@ namespace gazebo
         control_roll_sub = node_handle->Subscribe(rollCmdTopic, &RotorPlugin::OnRollCmdMsg, this);
         control_pitch_sub = node_handle->Subscribe(pitchCmdTopic, &RotorPlugin::OnPitchCmdMsg, this);    
 
+		debug_pub = node_handle->Advertise<gazebo::msgs::Vector3d>("rotor_plugin/debug_msg");
+
         /*rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);*/
 
         begin_angle=-1;
@@ -449,9 +451,9 @@ namespace gazebo
 
         //messaging
         transport::NodePtr node_handle;
-          transport::SubscriberPtr control_roll_sub;
-          transport::SubscriberPtr control_pitch_sub;
-        
+        transport::SubscriberPtr control_roll_sub;
+        transport::SubscriberPtr control_pitch_sub;
+        transport::PublisherPtr debug_pub;
 
         void UpdateRotorVisualPos()
         {
