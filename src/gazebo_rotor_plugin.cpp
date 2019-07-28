@@ -30,11 +30,22 @@ namespace gazebo
   {
 
     public: 
-    RotorPlugin() {}
+    RotorPlugin() 
+    {
+        blade_polar_angles=nullptr;
+        blade_polar_CL=nullptr;
+        blade_polar_CD=nullptr;
+    }
 
     ~RotorPlugin()
     {
         updateConnection->~Connection(); //??
+        if(blade_polar_angles)
+            delete [] blade_polar_angles;
+        if(blade_polar_CL)
+            delete [] blade_polar_CL;
+        if(blade_polar_CD)
+            delete [] blade_polar_CD;      
     }
 
     virtual void Load(physics::ModelPtr model, sdf::ElementPtr _sdf)
@@ -47,6 +58,7 @@ namespace gazebo
         this->blade_length=_sdf->GetElement("blade_length")->Get<double>();
         this->blade_width=_sdf->GetElement("blade_width")->Get<double>();
         this->blade_weight=_sdf->GetElement("blade_weight")->Get<double>();
+        this->collective_angle=ToRad(_sdf->GetElement("blade_collective")->Get<double>());
         this->delta_angle=ToRad(_sdf->GetElement("blade_delta")->Get<double>());
         this->air_density=_sdf->Get<double>("air_density");
         this->number_of_elements=_sdf->Get<int>("element_count");;
@@ -54,6 +66,47 @@ namespace gazebo
 
         base_link->VisualId(_sdf->GetElement("right_blade_visual")->Get<std::string>(), bladeVisualID[0]);         
         base_link->VisualId(_sdf->GetElement("left_blade_visual")->Get<std::string>(), bladeVisualID[1]);
+
+
+        //load polar
+        sdf::ElementPtr polar=_sdf->GetElement("blade_polar");
+        sdf::ElementPtr polar_point=polar->GetFirstElement();
+        blade_polar_point_count=0;
+        while(polar_point!= sdf::ElementPtr(nullptr))
+        {
+            blade_polar_point_count++;
+            polar_point=polar_point->GetNextElement();
+        }
+
+        gzdbg << "Loading polar approx with " << blade_polar_point_count << "points." <<std::endl;
+
+        this->blade_polar_angles =new double[blade_polar_point_count];
+        this->blade_polar_CL=new double[blade_polar_point_count];;
+        this->blade_polar_CD=new double[blade_polar_point_count];;
+
+
+
+        int p=0;
+        polar_point=polar->GetFirstElement();
+        while(polar_point!= sdf::ElementPtr(nullptr))
+        {
+            //TODO: tahle podmínka je blbě, pokud atribut neexistuje tak to hodí SEGFAULT (SIGSEGV)
+            if(!polar_point->GetAttribute("angle")->Get(blade_polar_angles[p])
+                || !polar_point->GetAttribute("CL")->Get(blade_polar_CL[p])
+                || !polar_point->GetAttribute("CD")->Get(blade_polar_CD[p])
+              )
+            {
+                gzdbg << "Error loading Polar point: " << p  << std::endl;
+            }
+
+            polar_point=polar_point->GetNextElement();
+            p++;
+        }
+
+        gzdbg << "Polar loaded." <<std::endl;
+
+       // for(int i=0;i<blade_polar_point_count;i++)
+       //     gzdbg << blade_polar_angles[i] << " " << blade_polar_CL[i] << " " << blade_polar_CD[i] << std::endl; 
 
         
         this->world=model->GetWorld();
@@ -69,7 +122,7 @@ namespace gazebo
             bladeOmega[b]=base_link->WorldPose().Rot()*(rotorOmega*Vector3d(0,0,1));
         }
         bladeDefaultPos=Vector3d(0.0, -blade_length/2,0.0);
-        flapAxDefault=Vector3d(std::cos(ToRad(delta_angle)),std::sin(ToRad(delta_angle)),0);          
+        flapAxDefault=Vector3d(std::cos(delta_angle),std::sin(delta_angle),0);          
 
         pitch=ToRad(-7);
         roll=0.0;
@@ -168,7 +221,8 @@ namespace gazebo
                     *Quaterniond(Vector3d(1,0,0),roll)
                      *Quaterniond(Vector3d(0,1,0),pitch)
                      *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
-                     *Quaterniond(flapAxDefault,bladeFlapAngle[b]);
+                     *Quaterniond(flapAxDefault,bladeFlapAngle[b])
+                     *Quaterniond(bladeDefaultPos,collective_angle);
 
                 Vector3d forward=Rblade*Vector3d(1,0,0);//musí být pravotočivá soustava, asi
                 Vector3d upward=Rblade*Vector3d(0,0,1);
@@ -257,8 +311,6 @@ namespace gazebo
                 rotorTotalForceMoment+=bladeTotalForceMoment;
     
                
-
-
                /* if(counter==DEBUG_CONST)
 	            {
                     gzdbg << " Blade ["<< b << "]   force: " << Rblade.RotateVectorReverse(bladeTotalForce) << std::endl;
@@ -284,17 +336,17 @@ namespace gazebo
             }
 
 
-            /*if(counter==DEBUG_CONST)
+            if(counter==DEBUG_CONST)
             {      
                    //gzdbg <<"angle: " << rotorBladeAngle[0]
-                         gzdbg<<"rotor Ax: " << base_link->WorldPose().Rot()
+                       /*  gzdbg<<"rotor Ax: " << base_link->WorldPose().Rot()
                                                 *Quaterniond(Vector3d(1,0,0),roll)
                                                 *Quaterniond(Vector3d(0,1,0),pitch)
                                                 *Vector3d(0,0,1) <<std::endl;
                          gzdbg<<" rotor Totoal Force: " <<rotorTotalForce<<std::endl;
                          gzdbg<<" rotor Totoal Force Moment: " <<rotorTotalForceMoment<<std::endl;
-                         gzdbg<<" newRotorOmega: " << newRotorOmega<<std::endl;
-            }*/
+                         gzdbg<<" RotorOmega: " << rotorOmega<<std::endl;*/
+            }
 
             //Euler integration of rotor angle
             for(int b=0;b<BLADE_COUNT;b++)
@@ -349,6 +401,7 @@ namespace gazebo
 
 		base_link->AddForceAtRelativePosition(rotorTimeStepForce,forcePosRelToCog);
 
+        //rotor polar test
         if(counter==DEBUG_CONST )
         {
             if(fabs(rotorOmega/2.0/PI*60-lastRotorOmega/2.0/PI*60)<2)
@@ -396,15 +449,15 @@ namespace gazebo
             gazebo::msgs::Set(&msg, liftForce);
             rotorfreq_pub_->Publish(msg);*/
 
-            //gzdbg<< "RPM:" << rotorOmega/2.0/PI*60 <<std::endl;
+            gzdbg<< "RPM:" << rotorOmega/2.0/PI*60 <<std::endl;
 			//gzdbg << "right omega:" <<bladeOmega[0] <<std::endl;
 			//gzdbg << "left omega:" <<bladeOmega[1] <<std::endl;
 
-           /* gzdbg<<"============================Profile===================================="<<std::endl;
+       /*   gzdbg<<"============================Profile===================================="<<std::endl;
             for(int i=-180;i<180;i++)
                 gzdbg<< i << ":" << getCL(ToRad(i))<<":"<<getCD(ToRad(i)) <<std::endl;
-            gzdbg<<"============================Profile=End================================"<<std::endl;
-        */}
+            gzdbg<<"============================Profile=End================================"<<std::endl;*/
+        }
 
     }
     
@@ -423,7 +476,14 @@ namespace gazebo
         double blade_width;
         double blade_weight;
         double delta_angle;
+        double collective_angle;
         double air_density;
+
+        int blade_polar_point_count;
+        double *blade_polar_angles;
+        double *blade_polar_CL;
+        double *blade_polar_CD;
+
         int number_of_elements;
         double element_area;
 
@@ -463,7 +523,8 @@ namespace gazebo
                     */Quaterniond(Vector3d(1,0,0),roll)
                     *Quaterniond(Vector3d(0,1,0),pitch)
                     *Quaterniond(Vector3d(0,0,1),rotorBladeAngle[b])
-                     *Quaterniond(flapAxDefault,bladeFlapAngle[b]);   
+                    *Quaterniond(flapAxDefault,bladeFlapAngle[b])
+                    *Quaterniond(bladeDefaultPos,collective_angle);   
             
                 base_link->SetVisualPose(bladeVisualID[b], Pose3d(rotor_pos+bladeRot.RotateVector(bladeDefaultPos),bladeRot));
             }           
@@ -487,36 +548,18 @@ namespace gazebo
         {
             //return 0.0;
             double alpha_degree=ToDeg(alpha);
-            double CL=0.0;
-            if(alpha_degree > -10  && alpha_degree <= -5)
-                CL=-0.5;
-            if(alpha_degree > -5  && alpha_degree <= 7.5)
-                CL=alpha_degree*0.136+0.18;
-            if(alpha_degree > 7.5 && alpha_degree < 20)
-                CL=1.2;
-            return CL;
+            return linearApprox(alpha_degree,blade_polar_angles,blade_polar_CL,blade_polar_point_count);
         };
 
         double getCD(double alpha)
         {
             double alpha_degree=ToDeg(alpha);
-            double CD=0.0;
-            if(alpha_degree > -10  && alpha_degree <= -5)
-                CD=alpha_degree*(-0.016)-0.06;
-            if(alpha_degree > -5  && alpha_degree <= 0)
-                CD=alpha_degree*(-0.002)+0.01;
-            if(alpha_degree > 0 && alpha_degree <= 7.5)
-                CD=0.01;
-            if(alpha_degree > 7.5 && alpha_degree <= 15)
-                CD=alpha_degree*0.008-0.05;
-            if(alpha_degree > 15 && alpha_degree <= 20)
-                CD=alpha_degree*0.026-0.32;
-            return CD;
+            return linearApprox(alpha_degree,blade_polar_angles,blade_polar_CD,blade_polar_point_count);
         };
 
-		double linearApprox(double x, double *xx, double *yy, int ylen)
+		double linearApprox(double x, double *xx, double *yy, int len)
 		{
-			if(ylen<=0)
+			if(len<=0)
 			{
 				gzdbg<<"Bad lenght of array.."<<std::endl;
 				return 0.0;
@@ -524,7 +567,7 @@ namespace gazebo
 			
 			if(x<xx[0])
 			{
-				gzdbg<<"lower than first element" <<std::endl;
+				//gzdbg<<"lower than first element" <<std::endl;
 				return yy[0];
 			}
 
@@ -533,9 +576,10 @@ namespace gazebo
 				i++;
 
 			if(i<len-1)
-				return yy[i]+(xx[i]-x)*((yy[i+1]-yy[i])/(xx[i+1]-xx[i]));
-			else
+				return yy[i]+(x-xx[i])*((yy[i+1]-yy[i])/(xx[i+1]-xx[i]));
+			else            
 				return yy[len-1];
+
 
 		};
 

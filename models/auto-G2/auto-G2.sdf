@@ -100,10 +100,40 @@
         <blade_width>0.04</blade_width>
         <blade_weight>0.04</blade_weight>
         <blade_delta>12</blade_delta>
+        <blade_collective>0</blade_collective>
 		<left_blade_visual>leftBlade</left_blade_visual>
 		<right_blade_visual>rightBlade</right_blade_visual>
         <element_count>30</element_count>
         <air_density>1.2041</air_density>
+        <blade_polar>
+            <!--<point angle="-15" CL="-0.25" CD="0.15"/>
+            <point angle="-14" CL="-1" CD="0.03"/>
+            <point angle="0" CL="0.4" CD="0.01"/>
+            <point angle="5" CL="0.9" CD="0.015"/>
+            <point angle="10" CL="1.4" CD="0.02"/>
+            <point angle="12.5" CL="1.5" CD="0.025"/>
+            <point angle="15" CL="1.5" CD="0.05"/>
+            <point angle="17.5" CL="1.4" CD="0.125"/>
+            <point angle="20" CL="1.2" CD="0.25"/>
+            <point angle="25" CL="0.5" CD="0.5"/>  -->
+
+            <point angle="-25" CL="0.0001" CD="0.5"/>            
+            <point angle="-20" CL="-0.1" CD="0.30"/>
+            <point angle="-15" CL="-0.2" CD="0.15"/>
+            <point angle="-10" CL="-0.4" CD="0.1"/>
+            <point angle="-7.5" CL="-0.5" CD="0.05"/>
+            <point angle="-5" CL="-0.2" CD="0.025"/>
+            <point angle="-2.5" CL="0.1" CD="0.0175"/>
+            <point angle="0" CL="0.4" CD="0.015"/>
+            <point angle="2.5" CL="0.65" CD="0.016"/>
+            <point angle="5" CL="0.9" CD="0.0175"/>
+            <point angle="7.5" CL="1.1" CD="0.022"/>
+            <point angle="10" CL="1.3" CD="0.027"/> 
+            <point angle="12.5" CL="1.3" CD="0.04"/>
+            <point angle="15" CL="1.25" CD="0.08"/>
+            <point angle="20" CL="0.7" CD="0.15"/>
+            <point angle="25" CL="0.0001" CD="0.5"/>
+        </blade_polar>
 	</plugin>
 
     <plugin name="slow" filename="libgazebo_slow_plugin.so">
