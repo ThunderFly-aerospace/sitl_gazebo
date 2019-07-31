@@ -149,6 +149,7 @@ namespace gazebo
         control_pitch_sub = node_handle->Subscribe(pitchCmdTopic, &RotorPlugin::OnPitchCmdMsg, this);    
 
 		debug_pub = node_handle->Advertise<gazebo::msgs::Vector3d>("rotor_plugin/debug_msg");
+		//debug_pub->WaitForConnection();
 
         /*rotorfreq_pub_ = node_handle_->Advertise<gazebo::msgs::Vector3d>("~/" + _model->GetName() + "/RotorFreq", 1);*/
 
@@ -181,6 +182,7 @@ namespace gazebo
             
        if(begin_angle>0 && (rotorBladeAngle[0]-begin_angle)>2*PI)
        {
+			sendDebugMsg(-2,0,0);//data send, render now
             begin_angle=-1.0;
             last_debug=currentTime;
        }
@@ -206,6 +208,11 @@ namespace gazebo
             //gzdbg <<"expected updates:" <<UPDATE_PER_ROUND<<std::endl;
        }*/
 
+	   if(begin_angle>0)
+       { 
+            int anglesCount=outerUpdatesPerRound*innerUpdates;
+            sendDebugMsg(-1,anglesCount,number_of_elements);
+	   }
 
        double innerTimeStep=timeStep/innerUpdates;
 	   Vector3d rotorTimeStepForce(0,0,0);
@@ -233,6 +240,7 @@ namespace gazebo
 
                 for(int e=0;e<number_of_elements;e++)
                 {
+					double debugValue;
                     //int e=number_of_elements-1;
                     double d=(e+0.5)/number_of_elements*blade_length;
                     Vector3d r=Rblade*Vector3d(0,-d,0);
@@ -250,6 +258,8 @@ namespace gazebo
                     double alpha=-std::atan2(airfoilVel.Y(),airfoilVel.X());
                     double q=0.5*this->air_density*this->element_area*airfoilVelocity*airfoilVelocity;
                     double L=q*getCL(alpha);
+					if(e==number_of_elements-1)
+						L=0;
                     double D=q*getCD(alpha);
 
                     Vector3d liftDirection = vel.Cross(wingCut).Normalize();
@@ -261,6 +271,13 @@ namespace gazebo
                     bladeAirMoment+=r.Cross(dragForce);
                     bladeAirForce+=liftForce;
                     bladeAirForce+=dragForce;
+
+					debugValue=ToDeg(alpha);
+
+					if(begin_angle>0 && b==0)
+					{
+						sendDebugMsg(rotorBladeAngle[0],e,debugValue);
+					}
                 }
 
                 Vector3d flapAx=base_link->WorldPose().Rot()
@@ -311,7 +328,7 @@ namespace gazebo
                 rotorTotalForceMoment+=bladeTotalForceMoment;
     
                
-               /* if(counter==DEBUG_CONST)
+                /*if(counter==DEBUG_CONST)
 	            {
                     gzdbg << " Blade ["<< b << "]   force: " << Rblade.RotateVectorReverse(bladeTotalForce) << std::endl;
                 }*/
@@ -556,6 +573,13 @@ namespace gazebo
             double alpha_degree=ToDeg(alpha);
             return linearApprox(alpha_degree,blade_polar_angles,blade_polar_CD,blade_polar_point_count);
         };
+
+		void sendDebugMsg(double x, double y, double z)
+		{
+			gazebo::msgs::Vector3d msg;
+			gazebo::msgs::Set(&msg, Vector3d(x, y, z));
+			debug_pub->Publish(msg);
+		}
 
 		double linearApprox(double x, double *xx, double *yy, int len)
 		{
